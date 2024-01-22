@@ -1,88 +1,67 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons'
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
+import { AuthContext } from "../../contexts/AuthContext";
 import { api } from "../../services/api";
 
 type RouteDetailParams = {
-    MinhaEscola: {
+    Frequencia: {
         id: number | string;
+        hasFrequencia: boolean;
     }
 }
 
-type TelefoneProps = {
+type DiaLetivoProps = {
     id: number | string;
-    numero: string;
-    escola: number | string;
+    data: Date | string;
+    presenca: boolean;
+    frequencia: number | string;
 }
 
-type EmailProps = {
+type FrequenciaProps = {
     id: number | string;
-    endereco: string;
-    escola: number | string;
+    ano: number | string;
+    percentual: number;
+    aluno: number | string;
+    objetos_diasletivos: DiaLetivoProps[];
 }
 
-type MinhaEscolaProps = {
-    id: number | string;
-    cnpj: string;
-    nome: string;
-    endereco: string;
-    num_salas: number | string;
-    descricao: string;
-    criado_em: Date | string;
-    atualizado_em: Date | string;
-    imagem: string; 
-    objetos_telefones: TelefoneProps[];
-    objetos_emails: EmailProps[];
-}
+type FrequenciaRouteProps = RouteProp<RouteDetailParams, 'Frequencia'>;
 
-type MinhaEscolaRouteProps = RouteProp<RouteDetailParams, 'MinhaEscola'>;
+export default function Frequencia(){
+    const { user } = useContext(AuthContext);
 
-export default function MinhaEscola(){
+    const [loading, setLoading] = useState(false);
 
-    
-    const [loading, setLoading] = useState(true);
+    const [frequencia, setFrequencia] = useState<FrequenciaProps>();
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
-    const route = useRoute<MinhaEscolaRouteProps>();
-
-    const [minhaEscola, setMinhaEscola] = useState<MinhaEscolaProps | undefined>();
+    const route = useRoute<FrequenciaRouteProps>();
 
     useEffect(() => {
         const loadEscola = async () => {    
             setLoading(true);
             try{
-                const response = await api.get(`/escolas/api/v1/${route.params?.id}`);
+                const response = await api.get(`/pessoas/aluno/frequencia/api/v1/${route.params?.id}`);
                 
                 const {
                     id,
-                    cnpj,
-                    nome,
-                    endereco,
-                    num_salas,
-                    descricao,
-                    criado_em,
-                    atualizado_em,
-                    imagem, 
-                    objetos_telefones,
-                    objetos_emails
+                    ano,
+                    percentual,
+                    aluno,
+                    objetos_diasletivos
                 } = await response.data;
 
-                setMinhaEscola({
+                setFrequencia({
                     id: id,
-                    cnpj: cnpj,
-                    nome: nome,
-                    endereco: endereco,
-                    num_salas: num_salas,
-                    descricao: descricao,
-                    criado_em: criado_em,
-                    atualizado_em: atualizado_em,
-                    imagem: imagem, 
-                    objetos_telefones: objetos_telefones,
-                    objetos_emails: objetos_emails
+                    ano: ano,
+                    percentual: percentual,
+                    aluno: aluno,
+                    objetos_diasletivos: objetos_diasletivos,
                 });
 
                 setLoading(false);
@@ -110,6 +89,10 @@ export default function MinhaEscola(){
         )
     }
 
+    const percentual = frequencia?.percentual as number;
+    const presencas = frequencia?.objetos_diasletivos.filter(item => item.presenca === true);
+    console.log(presencas);
+
     return(
         <View style={styles.container}>
             <View style={styles.header}>
@@ -133,44 +116,27 @@ export default function MinhaEscola(){
                 >
                     <FontAwesome5 name="arrow-left" size={45} color='#d9d9d9' />
                 </TouchableOpacity>
-                <Text style={styles.text}>Minha Escola</Text>
-                <FontAwesome5 name="school" size={45} color='#d9d9d9' />
+                <Text style={styles.text}>Frequência</Text>
+                <FontAwesome5 name="user-clock" size={45} color='#d9d9d9' />
             </View>
 
-            <View style={styles.content}>
-                <Text style={styles.topic}>CNPJ:</Text>
-                <Text style={styles.info}>{minhaEscola?.cnpj}</Text>
-
-                <Text style={styles.topic}>Nome:</Text>
-                <Text style={styles.info}>{ minhaEscola?.nome }</Text>
-                
-                <Text style={styles.topic}>Descrição:</Text>
-                <Text style={styles.info}>{minhaEscola?.descricao}</Text>
-                
-                <Text style={styles.topic}>Endereço:</Text>
-                <Text style={styles.info}>{minhaEscola?.endereco}</Text>
-                
-                <Text style={styles.topic}>Número de Salas:</Text>
-                <Text style={styles.info}>{minhaEscola?.num_salas} salas</Text>
-                
-                <Text style={styles.topic}>Telefone:</Text>
-                {minhaEscola?.objetos_telefones && minhaEscola.objetos_telefones.length > 0 ? (
-                    minhaEscola.objetos_telefones.map((item) => (
-                    <Text key={item.id} style={styles.info}>{item.numero}</Text>
-                    ))
-                ) : (
-                    <Text style={styles.info}>Nenhum telefone disponível</Text>
-                )}
-                
-                <Text style={styles.topic}>Email:</Text>
-                {minhaEscola?.objetos_emails && minhaEscola.objetos_emails.length > 0 ? (
-                    minhaEscola.objetos_emails.map((item) => (
-                    <Text key={item.id} style={styles.info}>{item.endereco}</Text>
-                    ))
-                ) : (
-                    <Text style={styles.info}>Nenhum email disponível</Text>
-                )}
+            <View style={styles.info}>
+                <Text style={styles.nome}>{user.first_name}</Text>
+                <Text style={styles.textInfo}>Você possui { presencas?.length } presenças em { frequencia?.objetos_diasletivos.length } dias de aula</Text>
             </View>
+
+            <View style={styles.contentBar}>
+                { !!percentual ? 
+                <View style={[styles.leftBar, { width: `${percentual}%` }]}>
+                    { percentual >= 25 ? <Text style={styles.percent}>{percentual}%</Text> : null }
+                </View> :
+                <View style={[styles.leftBar, { width: `50%` }]}>
+                    { percentual >= 25 ? <Text style={styles.percent}>{percentual}%</Text> : null }
+                </View>}
+                { percentual < 25 ? <Text style={styles.percentInvert}>{percentual}%</Text> : null }
+            </View>
+
+            <Text style={styles.alert}>O aluno precisa ter ao menos 75% de frequência para passar de ano</Text>
         </View>
     )
 }
@@ -178,16 +144,16 @@ export default function MinhaEscola(){
 const styles = StyleSheet.create({
     scrollContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
         backgroundColor: '#d9d9d9',
         width: '100%',
     },
     container: {
         flex: 1,
         backgroundColor: '#d9d9d9',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
         paddingHorizontal: 10,
         width: '100%',
     },
@@ -241,7 +207,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#d9d9d9',
         marginLeft: 16,
-        marginRight: 37,
+        marginRight: 73,
     },
     content: {
         width: '100%',
@@ -250,14 +216,55 @@ const styles = StyleSheet.create({
         paddingHorizontal: 13,
         paddingVertical: 30,
     },
-    topic: {
-        color: '#d9d9d9',
+    info:{
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 14,
+    },
+    nome: {
+        color: '#02489a',
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 24,
+    },
+    textInfo:{
+        color: '#02489a',
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    contentBar: {
+        width: '100%',  
+        height: 40,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        flexDirection: 'row',
+    },
+    leftBar: {  
+        height: 40,
+        backgroundColor: '#02489a',
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        paddingHorizontal: 10,
+    },
+    percent: {
+        color: '#fff',
         fontSize: 20,
         fontWeight: 'bold',
     },
-    info: {
-        color: '#d9d9d9',
+    percentInvert: {
+        color: '#02489a',
         fontSize: 20,
-        marginBottom: 14
+        fontWeight: 'bold',
+        marginLeft: 10,
+    },
+    alert: {
+        color: '#dc0909',
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginTop: 30,
     },
 });
+    

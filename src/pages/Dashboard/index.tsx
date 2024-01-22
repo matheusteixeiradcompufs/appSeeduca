@@ -7,6 +7,21 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
 import { api } from "../../services/api";
 
+type DiaLetivoProps = {
+    id: number | string;
+    data: Date | string;
+    presenca: boolean;
+    frequencia: number | string;
+}
+
+type FrequenciaProps = {
+    id: number | string;
+    ano: number | string;
+    percentual: number;
+    aluno: number | string;
+    objetos_disletivos: DiaLetivoProps[];
+}
+
 type AlunoProps = {
     id: number | string;
     escola: number | string;
@@ -14,6 +29,7 @@ type AlunoProps = {
     aluno_boletins: number[];
     aluno_frequencias: number[];
     alunos_transportes:[];
+    objetos_frequencias: FrequenciaProps[];
 }
 
 
@@ -37,7 +53,8 @@ export default function Dashboard(){
                     turmas, 
                     aluno_boletins, 
                     aluno_frequencias, 
-                    alunos_transportes 
+                    alunos_transportes,
+                    objetos_frequencias 
                 } = response.data;
 
                 setAluno({ 
@@ -46,7 +63,8 @@ export default function Dashboard(){
                     turmas: turmas, 
                     aluno_boletins: aluno_boletins, 
                     aluno_frequencias: aluno_frequencias, 
-                    alunos_transportes: alunos_transportes 
+                    alunos_transportes: alunos_transportes ,
+                    objetos_frequencias: objetos_frequencias
                 });
 
             }catch(err){
@@ -96,6 +114,15 @@ export default function Dashboard(){
     async function openPessoal() {
         const id = aluno?.id as number | string;
         navigation.navigate('Pessoal', { id: id });
+    }
+
+    async function openFrequencia() {
+        const hasFrequencia = aluno?.objetos_frequencias.some(objeto => objeto.ano === dataAtual.getFullYear());
+        let id = -1;
+        {aluno?.objetos_frequencias.map((item, index) => (
+            item.ano === dataAtual.getFullYear() ? id = aluno.aluno_frequencias[index] : id = id
+        ))}
+        navigation.navigate('Frequencia', { id: id, hasFrequencia: true });
     }
 
     if(loading){
@@ -165,7 +192,10 @@ export default function Dashboard(){
                         <FontAwesome5 name="address-book" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={openFrequencia}
+                    >
                         <Text style={styles.textButton}>Frequência</Text>
                         <FontAwesome5 name="user-clock" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
