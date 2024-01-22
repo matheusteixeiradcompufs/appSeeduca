@@ -5,14 +5,56 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
+import { api } from "../../services/api";
+
+type AlunoProps = {
+    id: number | string;
+    escola: number | string;
+    turmas: number[];
+    aluno_boletins: number[];
+    aluno_frequencias: number[];
+    alunos_transportes:[];
+}
+
 
 export default function Dashboard(){
-
     const { user, loading, logout } = useContext(AuthContext);
+
+    const [aluno, setAluno] = useState<AlunoProps>();
 
     const dataAtual = new Date();
 
     useEffect(() => {
+        const loadUser = async () => {    
+            try{
+                const response = await api.post('/pessoas/me', {
+                    username: user.username
+                });
+                
+                const { 
+                    id,
+                    escola, 
+                    turmas, 
+                    aluno_boletins, 
+                    aluno_frequencias, 
+                    alunos_transportes 
+                } = response.data;
+
+                setAluno({ 
+                    id: id,
+                    escola: escola, 
+                    turmas: turmas, 
+                    aluno_boletins: aluno_boletins, 
+                    aluno_frequencias: aluno_frequencias, 
+                    alunos_transportes: alunos_transportes 
+                });
+
+            }catch(err){
+                console.log(err);
+            }
+        };
+
+        loadUser();
     }, []);
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
@@ -47,7 +89,13 @@ export default function Dashboard(){
     }
 
     async function openMinhaEscola() {
-        navigation.navigate('MinhaEscola');
+        const escola = aluno?.escola as number | string;
+        navigation.navigate('MinhaEscola', { id: escola });
+    }
+
+    async function openPessoal() {
+        const id = aluno?.id as number | string;
+        navigation.navigate('Pessoal', { id: id });
     }
 
     if(loading){
@@ -99,7 +147,10 @@ export default function Dashboard(){
                         <FontAwesome5 name="school" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={openPessoal}
+                    >
                         <Text style={styles.textButton}>Pessoal</Text>
                         <FontAwesome5 name="user-alt" size={45} color='#d9d9d9' />
                     </TouchableOpacity>

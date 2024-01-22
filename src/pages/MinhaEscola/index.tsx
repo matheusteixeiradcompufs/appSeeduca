@@ -1,14 +1,116 @@
-import React from "react";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons'
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
+import { api } from "../../services/api";
+import { AuthContext } from "../../contexts/AuthContext";
 
-export function MinhaEscola(){
+type RouteDetailParams = {
+    MinhaEscola: {
+        id: number | string;
+    }
+}
+
+type TelefoneProps = {
+    id: number | string;
+    numero: string;
+    escola: number | string;
+}
+
+type EmailProps = {
+    id: number | string;
+    endereco: string;
+    escola: number | string;
+}
+
+type MinhaEscolaProps = {
+    id: number | string;
+    cnpj: string;
+    nome: string;
+    endereco: string;
+    num_salas: number | string;
+    descricao: string;
+    criado_em: Date | string;
+    atualizado_em: Date | string;
+    imagem: string; 
+    objetos_telefones: TelefoneProps[];
+    objetos_emails: EmailProps[];
+}
+
+type MinhaEscolaRouteProps = RouteProp<RouteDetailParams, 'MinhaEscola'>;
+
+export default function MinhaEscola(){
+
+    
+    const [loading, setLoading] = useState(true);
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
+    const route = useRoute<MinhaEscolaRouteProps>();
+
+    const [minhaEscola, setMinhaEscola] = useState<MinhaEscolaProps | undefined>();
+
+    useEffect(() => {
+        const loadEscola = async () => {    
+            setLoading(true);
+            try{
+                const response = await api.get(`/escolas/api/v1/${route.params?.id}`);
+                
+                const {
+                    id,
+                    cnpj,
+                    nome,
+                    endereco,
+                    num_salas,
+                    descricao,
+                    criado_em,
+                    atualizado_em,
+                    imagem, 
+                    objetos_telefones,
+                    objetos_emails
+                } = await response.data;
+
+                setMinhaEscola({
+                    id: id,
+                    cnpj: cnpj,
+                    nome: nome,
+                    endereco: endereco,
+                    num_salas: num_salas,
+                    descricao: descricao,
+                    criado_em: criado_em,
+                    atualizado_em: atualizado_em,
+                    imagem: imagem, 
+                    objetos_telefones: objetos_telefones,
+                    objetos_emails: objetos_emails
+                });
+
+                setLoading(false);
+            }catch(err){
+                console.log(err);
+                setLoading(false);
+            }
+        };
+
+        loadEscola();
+    }, []);
+
+    if(loading){
+        return(
+            <View
+                style={{
+                    flex: 1,
+                    backgroundColor: '#d9d9d9',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <ActivityIndicator size={60} color='#02489a'/>
+            </View>
+        )
+    }
+
     return(
         <View style={styles.container}>
             <View style={styles.header}>
@@ -37,17 +139,38 @@ export function MinhaEscola(){
             </View>
 
             <View style={styles.content}>
+                <Text style={styles.topic}>CNPJ:</Text>
+                <Text style={styles.info}>{minhaEscola?.cnpj}</Text>
+
                 <Text style={styles.topic}>Nome:</Text>
-                <Text style={styles.info}>Miriam Melo </Text>
+                <Text style={styles.info}>{ minhaEscola?.nome }</Text>
+                
+                <Text style={styles.topic}>Descrição:</Text>
+                <Text style={styles.info}>{minhaEscola?.descricao}</Text>
                 
                 <Text style={styles.topic}>Endereço:</Text>
-                <Text style={styles.info}>Miriam Melo</Text>
+                <Text style={styles.info}>{minhaEscola?.endereco}</Text>
+                
+                <Text style={styles.topic}>Número de Salas:</Text>
+                <Text style={styles.info}>{minhaEscola?.num_salas} salas</Text>
                 
                 <Text style={styles.topic}>Telefone:</Text>
-                <Text style={styles.info}>Miriam Melo</Text>
+                {minhaEscola?.objetos_telefones && minhaEscola.objetos_telefones.length > 0 ? (
+                    minhaEscola.objetos_telefones.map((item) => (
+                    <Text key={item.id} style={styles.info}>{item.numero}</Text>
+                    ))
+                ) : (
+                    <Text style={styles.info}>Nenhum telefone disponível</Text>
+                )}
                 
                 <Text style={styles.topic}>Email:</Text>
-                <Text style={styles.info}>Miriam Melo</Text>
+                {minhaEscola?.objetos_emails && minhaEscola.objetos_emails.length > 0 ? (
+                    minhaEscola.objetos_emails.map((item) => (
+                    <Text key={item.id} style={styles.info}>{item.endereco}</Text>
+                    ))
+                ) : (
+                    <Text style={styles.info}>Nenhum email disponível</Text>
+                )}
             </View>
         </View>
     )

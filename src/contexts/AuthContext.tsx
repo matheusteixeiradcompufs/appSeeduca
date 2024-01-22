@@ -137,8 +137,6 @@ export function AuthProvider({children}: AuthProviderProps){
             // Salva o novo token de acesso no AsyncStorage
             await AsyncStorage.setItem('@appseeduca:accessToken', newAccessToken);
 
-            console.log(`Novo token ${newAccessToken}`);
-
             setLoadingAuth(false);
         } catch (error) {
             console.error('Erro ao atualizar o token:', error);
