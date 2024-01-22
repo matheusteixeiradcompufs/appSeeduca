@@ -7,82 +7,68 @@ import { StackAppParamsList } from "../../routes/app.routes";
 import { api } from "../../services/api";
 
 type RouteDetailParams = {
-    MinhaEscola: {
+    Transporte: {
         id: number | string;
+        hasTransporte: boolean;
     }
 }
 
 type TelefoneProps = {
     id: number | string;
     numero: string;
-    escola: number | string;
+    transporte: number | string;
 }
 
-type EmailProps = {
+type TransporteProps = {
     id: number | string;
-    endereco: string;
-    escola: number | string;
-}
-
-type MinhaEscolaProps = {
-    id: number | string;
-    cnpj: string;
-    nome: string;
-    endereco: string;
-    num_salas: number | string;
-    descricao: string;
-    criado_em: Date | string;
-    atualizado_em: Date | string;
-    imagem: string; 
+    placa: string;
+    ano: number | string;
+    tipo: string;
+    nomeMotorista: string;
+    nomeAuxiliar: string;
+    itinerario: string; 
     objetos_telefones: TelefoneProps[];
-    objetos_emails: EmailProps[];
 }
 
-type MinhaEscolaRouteProps = RouteProp<RouteDetailParams, 'MinhaEscola'>;
+type TransporteRouteProps = RouteProp<RouteDetailParams, 'Transporte'>;
 
-export default function MinhaEscola(){
+export default function Transporte(){
 
     
     const [loading, setLoading] = useState(true);
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
-    const route = useRoute<MinhaEscolaRouteProps>();
+    const route = useRoute<TransporteRouteProps>();
 
-    const [minhaEscola, setMinhaEscola] = useState<MinhaEscolaProps | undefined>();
+    const [transporte, setTransporte] = useState<TransporteProps | undefined>();
 
     useEffect(() => {
-        const loadEscola = async () => {    
+        const loadTransporte = async () => {    
             setLoading(true);
             try{
-                const response = await api.get(`/escolas/api/v1/${route.params?.id}`);
+                const response = await api.get(`/pessoas/aluno/transporte/api/v1/${route.params?.id}`);
                 
                 const {
                     id,
-                    cnpj,
-                    nome,
-                    endereco,
-                    num_salas,
-                    descricao,
-                    criado_em,
-                    atualizado_em,
-                    imagem, 
+                    placa,
+                    ano,
+                    tipo,
+                    nomeMotorista,
+                    nomeAuxiliar,
+                    itinerario,
                     objetos_telefones,
-                    objetos_emails
                 } = await response.data;
 
-                setMinhaEscola({
+                setTransporte({
                     id: id,
-                    cnpj: cnpj,
-                    nome: nome,
-                    endereco: endereco,
-                    num_salas: num_salas,
-                    descricao: descricao,
-                    criado_em: criado_em,
-                    atualizado_em: atualizado_em,
-                    imagem: imagem, 
+                    placa: placa,
+                    ano: ano,
+                    tipo: tipo,
+                    nomeMotorista: nomeMotorista,
+                    nomeAuxiliar: nomeAuxiliar,
+                    itinerario: itinerario, 
                     objetos_telefones: objetos_telefones,
-                    objetos_emails: objetos_emails
                 });
 
                 setLoading(false);
@@ -92,7 +78,7 @@ export default function MinhaEscola(){
             }
         };
 
-        loadEscola();
+        loadTransporte();
     }, []);
 
     if(loading){
@@ -134,43 +120,32 @@ export default function MinhaEscola(){
                     >
                         <FontAwesome5 name="arrow-left" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
-                    <Text style={styles.text}>Minha Escola</Text>
-                    <FontAwesome5 name="school" size={45} color='#d9d9d9' />
+                    <Text style={styles.text}>Transporte</Text>
+                    <FontAwesome5 name="bus-alt" size={45} color='#d9d9d9' />
                 </View>
 
                 <View style={styles.content}>
-                    <Text style={styles.topic}>CNPJ:</Text>
-                    <Text style={styles.info}>{minhaEscola?.cnpj}</Text>
+                    <Text style={styles.topic}>Tipo:</Text>
+                    <Text style={styles.info}>{ transporte?.tipo }</Text>
 
-                    <Text style={styles.topic}>Nome:</Text>
-                    <Text style={styles.info}>{ minhaEscola?.nome }</Text>
+                    <Text style={styles.topic}>Placa:</Text>
+                    <Text style={styles.info}>{ transporte?.placa }</Text>
                     
-                    <Text style={styles.topic}>Descrição:</Text>
-                    <Text style={styles.info}>{minhaEscola?.descricao}</Text>
+                    <Text style={styles.topic}>Motorista:</Text>
+                    <Text style={styles.info}>{ transporte?.nomeMotorista }</Text>
                     
-                    <Text style={styles.topic}>Endereço:</Text>
-                    <Text style={styles.info}>{minhaEscola?.endereco}</Text>
+                    <Text style={styles.topic}>Auxiliar:</Text>
+                    <Text style={styles.info}>{ transporte?.nomeAuxiliar }</Text>
                     
-                    <Text style={styles.topic}>Número de Salas:</Text>
-                    <Text style={styles.info}>{minhaEscola?.num_salas} salas</Text>
+                    <Text style={styles.topic}>Telefons(s):</Text>
+                    {transporte?.objetos_telefones.map((item, index) => (
+                        <Text style={styles.info} key={index}>{item.numero}</Text>
+                    ))}
                     
-                    <Text style={styles.topic}>Telefone:</Text>
-                    {minhaEscola?.objetos_telefones && minhaEscola.objetos_telefones.length > 0 ? (
-                        minhaEscola.objetos_telefones.map((item) => (
-                        <Text key={item.id} style={styles.info}>{item.numero}</Text>
-                        ))
-                    ) : (
-                        <Text style={styles.info}>Nenhum telefone disponível</Text>
-                    )}
+                    <Text style={styles.topic}>Itinerário:</Text>
+                    <Text style={styles.info}>{ transporte?.itinerario }</Text>
                     
-                    <Text style={styles.topic}>Email:</Text>
-                    {minhaEscola?.objetos_emails && minhaEscola.objetos_emails.length > 0 ? (
-                        minhaEscola.objetos_emails.map((item) => (
-                        <Text key={item.id} style={styles.info}>{item.endereco}</Text>
-                        ))
-                    ) : (
-                        <Text style={styles.info}>Nenhum email disponível</Text>
-                    )}
+                    
                 </View>
             </View>
         </ScrollView>
@@ -243,7 +218,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#d9d9d9',
         marginLeft: 16,
-        marginRight: 37,
+        marginRight: 91,
     },
     content: {
         width: '100%',

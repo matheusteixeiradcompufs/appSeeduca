@@ -14,6 +14,23 @@ type DiaLetivoProps = {
     frequencia: number | string;
 }
 
+type TelefoneProps = {
+    id: number | string;
+    numero: string;
+    transporte: number | string;
+}
+
+type TransporteProps = {
+    id: number | string;
+    placa: string;
+    ano: number | string;
+    tipo: string;
+    nomeMotorista: string;
+    nomeAuxiliar: string;
+    itinerario: string; 
+    objetos_telefones: TelefoneProps[];
+}
+
 type FrequenciaProps = {
     id: number | string;
     ano: number | string;
@@ -30,6 +47,7 @@ type AlunoProps = {
     aluno_frequencias: number[];
     alunos_transportes:[];
     objetos_frequencias: FrequenciaProps[];
+    objetos_transportes: TransporteProps[];
 }
 
 
@@ -54,7 +72,8 @@ export default function Dashboard(){
                     aluno_boletins, 
                     aluno_frequencias, 
                     alunos_transportes,
-                    objetos_frequencias 
+                    objetos_frequencias,
+                    objetos_transportes 
                 } = response.data;
 
                 setAluno({ 
@@ -64,7 +83,8 @@ export default function Dashboard(){
                     aluno_boletins: aluno_boletins, 
                     aluno_frequencias: aluno_frequencias, 
                     alunos_transportes: alunos_transportes ,
-                    objetos_frequencias: objetos_frequencias
+                    objetos_frequencias: objetos_frequencias,
+                    objetos_transportes: objetos_transportes
                 });
 
             }catch(err){
@@ -122,7 +142,16 @@ export default function Dashboard(){
         {aluno?.objetos_frequencias.map((item, index) => (
             item.ano === dataAtual.getFullYear() ? id = aluno.aluno_frequencias[index] : id = id
         ))}
-        navigation.navigate('Frequencia', { id: id, hasFrequencia: true });
+        navigation.navigate('Frequencia', { id: id, hasFrequencia: hasFrequencia as boolean });
+    }
+
+    async function openTransporte() {
+        const hasTransporte = aluno?.objetos_transportes.some(objeto => objeto.ano === dataAtual.getFullYear());
+        let id = -1;
+        {aluno?.objetos_transportes.map((item, index) => (
+            item.ano === dataAtual.getFullYear() ? id = aluno.alunos_transportes[index] : id = id
+        ))}
+        navigation.navigate('Transporte', { id: id, hasTransporte: hasTransporte as boolean });
     }
 
     if(loading){
@@ -222,7 +251,10 @@ export default function Dashboard(){
                         <FontAwesome5 name="chalkboard" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={openTransporte}
+                    >
                         <Text style={styles.textButton}>Transporte</Text>
                         <FontAwesome5 name="bus-alt" size={45} color='#d9d9d9' />
                     </TouchableOpacity>

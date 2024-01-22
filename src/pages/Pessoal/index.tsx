@@ -216,16 +216,16 @@ export default function Pessoal(){
 const styles = StyleSheet.create({
     scrollContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
         backgroundColor: '#d9d9d9',
         width: '100%',
     },
     container: {
         flex: 1,
         backgroundColor: '#d9d9d9',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
         paddingHorizontal: 10,
         width: '100%',
     },

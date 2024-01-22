@@ -43,7 +43,7 @@ export default function Frequencia(){
     const route = useRoute<FrequenciaRouteProps>();
 
     useEffect(() => {
-        const loadEscola = async () => {    
+        const loadFrequencia = async () => {    
             setLoading(true);
             try{
                 const response = await api.get(`/pessoas/aluno/frequencia/api/v1/${route.params?.id}`);
@@ -71,7 +71,7 @@ export default function Frequencia(){
             }
         };
 
-        loadEscola();
+        loadFrequencia();
     }, []);
 
     if(loading){
@@ -94,50 +94,52 @@ export default function Frequencia(){
     console.log(presencas);
 
     return(
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Image 
-                    style={styles.logoLeft}
-                    source={require('../../assets/logo_ufs.png')} 
-                />
-                <Image 
-                    style={styles.logo}
-                    source={require('../../assets/logo.png')} 
-                />
-                <Image 
-                    style={styles.logoRigth}
-                    source={require('../../assets/logo_seduc.png')} 
-                />
-            </View>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Image 
+                        style={styles.logoLeft}
+                        source={require('../../assets/logo_ufs.png')} 
+                    />
+                    <Image 
+                        style={styles.logo}
+                        source={require('../../assets/logo.png')} 
+                    />
+                    <Image 
+                        style={styles.logoRigth}
+                        source={require('../../assets/logo_seduc.png')} 
+                    />
+                </View>
 
-            <View style={styles.banner}>
-                <TouchableOpacity 
-                    onPress={navigation.goBack}
-                >
-                    <FontAwesome5 name="arrow-left" size={45} color='#d9d9d9' />
-                </TouchableOpacity>
-                <Text style={styles.text}>Frequência</Text>
-                <FontAwesome5 name="user-clock" size={45} color='#d9d9d9' />
-            </View>
+                <View style={styles.banner}>
+                    <TouchableOpacity 
+                        onPress={navigation.goBack}
+                    >
+                        <FontAwesome5 name="arrow-left" size={45} color='#d9d9d9' />
+                    </TouchableOpacity>
+                    <Text style={styles.text}>Frequência</Text>
+                    <FontAwesome5 name="user-clock" size={45} color='#d9d9d9' />
+                </View>
 
-            <View style={styles.info}>
-                <Text style={styles.nome}>{user.first_name}</Text>
-                <Text style={styles.textInfo}>Você possui { presencas?.length } presenças em { frequencia?.objetos_diasletivos.length } dias de aula</Text>
-            </View>
+                <View style={styles.info}>
+                    <Text style={styles.nome}>{user.first_name}</Text>
+                    <Text style={styles.textInfo}>Você possui { presencas?.length } presenças em { frequencia?.objetos_diasletivos.length } dias de aula</Text>
+                </View>
 
-            <View style={styles.contentBar}>
-                { !!percentual ? 
-                <View style={[styles.leftBar, { width: `${percentual}%` }]}>
-                    { percentual >= 25 ? <Text style={styles.percent}>{percentual}%</Text> : null }
-                </View> :
-                <View style={[styles.leftBar, { width: `50%` }]}>
-                    { percentual >= 25 ? <Text style={styles.percent}>{percentual}%</Text> : null }
-                </View>}
-                { percentual < 25 ? <Text style={styles.percentInvert}>{percentual}%</Text> : null }
-            </View>
+                <View style={styles.contentBar}>
+                    { !!percentual ? 
+                    <View style={[styles.leftBar, { width: `${percentual}%` }]}>
+                        { percentual >= 25 ? <Text style={styles.percent}>{percentual}%</Text> : null }
+                    </View> :
+                    <View style={[styles.leftBar, { width: `50%` }]}>
+                        { percentual >= 25 ? <Text style={styles.percent}>{percentual}%</Text> : null }
+                    </View>}
+                    { percentual < 25 ? <Text style={styles.percentInvert}>{percentual}%</Text> : null }
+                </View>
 
-            <Text style={styles.alert}>O aluno precisa ter ao menos 75% de frequência para passar de ano</Text>
-        </View>
+                <Text style={styles.alert}>O aluno precisa ter ao menos 75% de frequência para passar de ano</Text>
+            </View>
+        </ScrollView>
     )
 }
 
