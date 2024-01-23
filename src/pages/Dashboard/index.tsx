@@ -154,6 +154,11 @@ export default function Dashboard(){
         navigation.navigate('Transporte', { id: id, hasTransporte: hasTransporte as boolean });
     }
 
+    async function openCarteira() {
+        const id = aluno?.id as number | string;
+        navigation.navigate('Carteira', { id: id});
+    }
+
     if(loading){
         return(
             <View
@@ -266,7 +271,10 @@ export default function Dashboard(){
                         <FontAwesome5 name="comments" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={openCarteira}
+                    >
                         <View>
                             <Text style={styles.textButton}>Carteira</Text>
                             <Text style={styles.textButton}>Estudantil</Text>
@@ -294,7 +302,7 @@ export default function Dashboard(){
 const styles = StyleSheet.create({
     scrollContainer: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         backgroundColor: '#d9d9d9',
         width: '100%',
@@ -302,7 +310,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#d9d9d9',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         paddingHorizontal: 10,
         width: '100%',
