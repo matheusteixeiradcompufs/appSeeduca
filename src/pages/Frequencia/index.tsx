@@ -91,8 +91,7 @@ export default function Frequencia(){
 
     const percentual = frequencia?.percentual as number;
     const presencas = frequencia?.objetos_diasletivos.filter(item => item.presenca === true);
-    console.log(presencas);
-
+    
     return(
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>

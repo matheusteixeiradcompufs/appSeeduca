@@ -6,6 +6,7 @@ import Pessoal from "../pages/Pessoal";
 import Frequencia from "../pages/Frequencia";
 import Transporte from "../pages/Transporte";
 import Carteira from "../pages/Carteira";
+import Notas from "../pages/Notas";
 
 export type StackAppParamsList = {
     Dashboard: undefined;
@@ -24,6 +25,9 @@ export type StackAppParamsList = {
         hasTransporte: boolean;
     };
     Carteira: {
+        id: number | string;
+    };
+    Notas: {
         id: number | string;
     };
 }
@@ -71,6 +75,13 @@ function AppRoutes(){
             <Stack.Screen 
                 name='Carteira' 
                 component={Carteira}  
+                options={{
+                    headerShown: false
+                }}
+            />
+            <Stack.Screen 
+                name='Notas' 
+                component={Notas}  
                 options={{
                     headerShown: false
                 }}

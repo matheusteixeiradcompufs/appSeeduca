@@ -159,6 +159,11 @@ export default function Dashboard(){
         navigation.navigate('Carteira', { id: id});
     }
 
+    async function openNotas() {
+        // const id = aluno?.id as number | string;
+        navigation.navigate('Notas', { id: 1});
+    }
+
     if(loading){
         return(
             <View
@@ -236,7 +241,10 @@ export default function Dashboard(){
                 </View>
             
                 <View style={styles.lineContainer}>
-                    <TouchableOpacity style={[styles.button, {marginRight: 20}]}>
+                    <TouchableOpacity 
+                        style={[styles.button, {marginRight: 20}]}
+                        onPress={openNotas}
+                    >
                         <Text style={styles.textButton}>Notas</Text>
                         <FontAwesome5 name="file-invoice" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
