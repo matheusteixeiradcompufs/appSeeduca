@@ -44,15 +44,6 @@ export default function Notas(){
 
     const [boletim, setBoletim] = useState<BoletimProps | undefined>();
 
-    // const unidades = [
-    //     { id: 1, notas: [8.5, 9, 7, 8, 9, 7] },
-    //     { id: 2, notas: [6, 8, 7, 8, 9, 7] },
-    //     { id: 3, notas: [9, 7, 8, 8, 9, 7] },
-    //     { id: 4, notas: [8, 9, 7, 8, 9, 7] },
-    //     { id: 5, notas: [6, 8, 7, 8, 9, 7] },
-    //     { id: 6, notas: [9, 7, 8, 8, 9, 7] },
-    // ]; 
-
     function getDisciplina(index: number){
         let disciplina = '';
 

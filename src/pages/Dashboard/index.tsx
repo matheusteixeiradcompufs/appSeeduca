@@ -20,6 +20,23 @@ type TelefoneProps = {
     transporte: number | string;
 }
 
+type AvaliacaoProps = {
+    id: number | string;
+    nome: string;
+    nota: number;
+    aluno: number | string;
+    disciplina: number | string;
+    boletim: number | string;
+    turma: number | string;
+}
+
+type BoletimProps = {
+    id: number | string;
+    ano: number | string;
+    aluno: number | string;
+    objetos_avaliacoes: AvaliacaoProps[];
+}
+
 type TransporteProps = {
     id: number | string;
     placa: string;
@@ -48,6 +65,7 @@ type AlunoProps = {
     alunos_transportes:[];
     objetos_frequencias: FrequenciaProps[];
     objetos_transportes: TransporteProps[];
+    objetos_boletins: BoletimProps[];
 }
 
 
@@ -73,7 +91,8 @@ export default function Dashboard(){
                     aluno_frequencias, 
                     alunos_transportes,
                     objetos_frequencias,
-                    objetos_transportes 
+                    objetos_transportes,
+                    objetos_boletins, 
                 } = response.data;
 
                 setAluno({ 
@@ -84,7 +103,8 @@ export default function Dashboard(){
                     aluno_frequencias: aluno_frequencias, 
                     alunos_transportes: alunos_transportes ,
                     objetos_frequencias: objetos_frequencias,
-                    objetos_transportes: objetos_transportes
+                    objetos_transportes: objetos_transportes,
+                    objetos_boletins: objetos_boletins,
                 });
 
             }catch(err){
@@ -160,8 +180,13 @@ export default function Dashboard(){
     }
 
     async function openNotas() {
-        // const id = aluno?.id as number | string;
-        navigation.navigate('Notas', { id: 1});
+        const id = aluno?.id as number | string;
+        navigation.navigate('Notas', { id: id});
+    }
+
+    async function openMerenda() {
+        const escola = aluno?.escola as number | string;
+        navigation.navigate('Merenda', { id: escola });
     }
 
     if(loading){
@@ -249,7 +274,10 @@ export default function Dashboard(){
                         <FontAwesome5 name="file-invoice" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={openMerenda}
+                    >
                         <Text style={styles.textButton}>Merenda</Text>
                         <FontAwesome5 name="apple-alt" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
