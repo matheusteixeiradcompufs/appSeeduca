@@ -56,6 +56,44 @@ type FrequenciaProps = {
     objetos_disletivos: DiaLetivoProps[];
 }
 
+type TarefaProps = {
+    id: number | string;
+    nome: string;
+    descricao: string;
+    tipo: boolean;
+    cadastrada_em: Date | string;
+    entrega: string;
+    diaAgenda: number | string;
+}
+
+type AvisoProps = {
+    id: number | string;
+    titulo: string;
+    texto: string;
+    publicado_em: Date | string;
+    diaAgenda: number | string;
+}
+
+type DiaProps = {
+    id: number | string;
+    data: string;
+    disciplinas: number[] | string[];
+    objetos_avisos: AvisoProps[];
+    objetos_tarefas: TarefaProps[];
+}
+
+type AgendaProps = {
+    id: number | string;
+    turma: number | string;
+    objetos_dias: DiaProps[];
+}
+
+type TurmaProps = {
+    id: number | string;
+    ano: number | string;
+    objeto_agenda: AgendaProps;
+}
+
 type AlunoProps = {
     id: number | string;
     escola: number | string;
@@ -63,6 +101,7 @@ type AlunoProps = {
     aluno_boletins: number[];
     aluno_frequencias: number[];
     alunos_transportes:[];
+    objetos_turmas: TurmaProps[];
     objetos_frequencias: FrequenciaProps[];
     objetos_transportes: TransporteProps[];
     objetos_boletins: BoletimProps[];
@@ -90,6 +129,7 @@ export default function Dashboard(){
                     aluno_boletins, 
                     aluno_frequencias, 
                     alunos_transportes,
+                    objetos_turmas,
                     objetos_frequencias,
                     objetos_transportes,
                     objetos_boletins, 
@@ -102,6 +142,7 @@ export default function Dashboard(){
                     aluno_boletins: aluno_boletins, 
                     aluno_frequencias: aluno_frequencias, 
                     alunos_transportes: alunos_transportes ,
+                    objetos_turmas: objetos_turmas,
                     objetos_frequencias: objetos_frequencias,
                     objetos_transportes: objetos_transportes,
                     objetos_boletins: objetos_boletins,
@@ -189,6 +230,12 @@ export default function Dashboard(){
         navigation.navigate('Merenda', { id: escola });
     }
 
+    async function openAgenda() {
+        const alunoMatriculado = aluno?.objetos_turmas.some(objeto => objeto.ano === dataAtual.getFullYear());
+        const turmas = aluno?.objetos_turmas.filter(objeto => objeto.ano === dataAtual.getFullYear());
+        alunoMatriculado && turmas ? navigation.navigate('Agenda', { id: turmas[turmas.length - 1].objeto_agenda.id }) : alert("Aluno não está matriculado em nenhuma turma ou a turma não tem agenda cadastrada!");
+    }
+
     if(loading){
         return(
             <View
@@ -205,22 +252,22 @@ export default function Dashboard(){
     }
 
     return(
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Image 
-                        style={styles.logoLeft}
-                        source={require('../../assets/logo_ufs.png')} 
-                    />
-                    <Image 
-                        style={styles.logo}
-                        source={require('../../assets/logo.png')} 
-                    />
-                    <Image 
-                        style={styles.logoRigth}
-                        source={require('../../assets/logo_seduc.png')} 
-                    />
-                </View>
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Image 
+                    style={styles.logoLeft}
+                    source={require('../../assets/logo_ufs.png')} 
+                />
+                <Image 
+                    style={styles.logo}
+                    source={require('../../assets/logo.png')} 
+                />
+                <Image 
+                    style={styles.logoRigth}
+                    source={require('../../assets/logo_seduc.png')} 
+                />
+            </View>
+            <ScrollView>
                 <View style={styles.lineTextContainer}>
                     <Text style={[styles.textId]}>Bom dia {user.first_name}!</Text>
                     <Text style={styles.textDate}>Hoje, {formatDay(dataAtual.getDay())}, {dataAtual.getDate()} de {formatMounth(dataAtual.getMonth())}</Text>
@@ -248,7 +295,10 @@ export default function Dashboard(){
                 </View>
             
                 <View style={styles.lineContainer}>
-                    <TouchableOpacity style={[styles.button, {marginRight: 20}]}>
+                    <TouchableOpacity 
+                        style={[styles.button, {marginRight: 20}]}
+                        onPress={openAgenda}
+                    >
                         <View>
                             <Text style={styles.textButton}>Agenda</Text>
                             <Text style={styles.textButton}>Escolar</Text>
@@ -330,26 +380,16 @@ export default function Dashboard(){
                         <FontAwesome5 name="sign-out-alt" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
                 </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    scrollContainer: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: '#d9d9d9',
-        width: '100%',
-    },
     container: {
         flex: 1,
         backgroundColor: '#d9d9d9',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
         paddingHorizontal: 10,
-        width: '100%',
     },
     header: {
         width: '100%',
@@ -359,7 +399,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#d9d9d9',
         paddingHorizontal: 37,
-        marginBottom: 17,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -390,6 +429,7 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'flex-start',
         alignItems: 'center',
+        marginTop: 17,
         marginBottom: 14,
     },
     lineContainer: {

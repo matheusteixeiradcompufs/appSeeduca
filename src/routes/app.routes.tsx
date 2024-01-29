@@ -8,6 +8,7 @@ import Transporte from "../pages/Transporte";
 import Carteira from "../pages/Carteira";
 import Notas from "../pages/Notas";
 import Merenda from "../pages/Merenda";
+import Agenda from "../pages/Agenda";
 
 export type StackAppParamsList = {
     Dashboard: undefined;
@@ -32,6 +33,9 @@ export type StackAppParamsList = {
         id: number | string;
     };
     Merenda: {
+        id: number | string;
+    };
+    Agenda: {
         id: number | string;
     };
 }
@@ -93,6 +97,13 @@ function AppRoutes(){
             <Stack.Screen 
                 name='Merenda' 
                 component={Merenda}  
+                options={{
+                    headerShown: false
+                }}
+            />
+            <Stack.Screen 
+                name='Agenda' 
+                component={Agenda}  
                 options={{
                     headerShown: false
                 }}

@@ -142,8 +142,8 @@ export default function Notas(){
     const unidades = formatarNotas(boletim?.objetos_avaliacoes);
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.container}>
+        <View style={styles.container}>
+            <ScrollView>
                 <View style={styles.header}>
                     <Image 
                         style={styles.logoLeft}
@@ -192,27 +192,17 @@ export default function Notas(){
                         useScrollView={true}
                     />
                 </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
         
     );
 }
 
 const styles = StyleSheet.create({
-    scrollContainer: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: '#d9d9d9',
-        width: '100%',
-    },
     container: {
         flex: 1,
         backgroundColor: '#d9d9d9',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
         paddingHorizontal: 10,
-        width: '100%',
     },
     header: {
         width: '100%',
@@ -222,7 +212,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#d9d9d9',
         paddingHorizontal: 37,
-        marginBottom: 17,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -257,6 +246,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 17,
         marginBottom: 30,
     },
     text: {

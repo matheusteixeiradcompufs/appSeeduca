@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons';
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -134,100 +134,92 @@ export default function Pessoal(){
     
     return(
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Image 
-                    style={styles.logoLeft}
-                    source={require('../../assets/logo_ufs.png')} 
-                />
-                <Image 
-                    style={styles.logo}
-                    source={require('../../assets/logo.png')} 
-                />
-                <Image 
-                    style={styles.logoRigth}
-                    source={require('../../assets/logo_seduc.png')} 
-                />
-            </View>
-
-            <View style={styles.banner}>
-                <TouchableOpacity 
-                    onPress={navigation.goBack}
-                >
-                    <FontAwesome5 name="arrow-left" size={45} color='#d9d9d9' />
-                </TouchableOpacity>
-                <Text style={styles.text}>Pessoal</Text>
-                <FontAwesome5 name="user-alt" size={45} color='#d9d9d9' />
-            </View>
-
-            <View style={styles.content}>
-                <View style={styles.lineImage}>
-                    <Image
-                        style={styles.photo}
-                        source={require('../../assets/Foto.png')} 
+            <ScrollView>
+                <View style={styles.header}>
+                    <Image 
+                        style={styles.logoLeft}
+                        source={require('../../assets/logo_ufs.png')} 
                     />
-                    <View style={styles.column}>
-                        <Text style={styles.topicColumn}>Matricula:</Text>
-                        <Text style={styles.infoColumn}>{aluno?.matricula}</Text>
-                        
-                        <Text style={styles.topicColumn}>Turma</Text>
-                        {alunoMatriculado ? (
-                            aluno?.objetos_turmas.map(objeto => {
-                            if (objeto.ano === dataAtual.getFullYear()) {
-                                return <Text style={styles.infoColumn} key={objeto.id}>{objeto.nome}</Text>;
-                            }
-                            return null; 
-                            })
-                        ) : (
-                            <Text style={styles.infoColumn}>O aluno não está matriculado</Text>
-                        )}
-                    </View>
+                    <Image 
+                        style={styles.logo}
+                        source={require('../../assets/logo.png')} 
+                    />
+                    <Image 
+                        style={styles.logoRigth}
+                        source={require('../../assets/logo_seduc.png')} 
+                    />
                 </View>
-                <Text style={styles.topic}>Nome:</Text>
-                <Text style={styles.info}>{aluno?.objeto_usuario.first_name} {aluno?.objeto_usuario.last_name}</Text>
 
-                <Text style={styles.topic}>Data de Nascimento:</Text>
-                <Text style={styles.info}>
-                    {aluno?.data_nascimento ? 
-                        format(aluno?.data_nascimento, 'dd/MM/yyyy')
-                        : ''}
-                </Text>
-                
-                <Text style={styles.topic}>Endereço:</Text>
-                <Text style={styles.info}>{aluno?.endereco}</Text>
-                
-                <Text style={styles.topic}>Email(s):</Text>
-                {aluno?.objetos_emails.map((item, index) => (
-                    <Text style={styles.infoColumn} key={index}>{item.endereco}</Text>
-                ))}
-                
-                <Text style={styles.topic}>Telefone(s):</Text>
-                {aluno?.objetos_telefones.map((item, index) => (
-                    <Text style={styles.infoColumn} key={index}>{item.numero}</Text>
-                ))}
-                  
-                <Text style={styles.topic}>Enfermidade/Necessidade Especial:</Text>
-                <Text style={styles.info}>{aluno?.eh_pcd ? 'Sim' : 'Não'}</Text>
-                
-            </View>
+                <View style={styles.banner}>
+                    <TouchableOpacity 
+                        onPress={navigation.goBack}
+                    >
+                        <FontAwesome5 name="arrow-left" size={45} color='#d9d9d9' />
+                    </TouchableOpacity>
+                    <Text style={styles.text}>Pessoal</Text>
+                    <FontAwesome5 name="user-alt" size={45} color='#d9d9d9' />
+                </View>
+
+                <View style={styles.content}>
+                    <View style={styles.lineImage}>
+                        <Image
+                            style={styles.photo}
+                            source={require('../../assets/Foto.png')} 
+                        />
+                        <View style={styles.column}>
+                            <Text style={styles.topicColumn}>Matricula:</Text>
+                            <Text style={styles.infoColumn}>{aluno?.matricula}</Text>
+                            
+                            <Text style={styles.topicColumn}>Turma</Text>
+                            {alunoMatriculado ? (
+                                aluno?.objetos_turmas.map(objeto => {
+                                if (objeto.ano === dataAtual.getFullYear()) {
+                                    return <Text style={styles.infoColumn} key={objeto.id}>{objeto.nome}</Text>;
+                                }
+                                return null; 
+                                })
+                            ) : (
+                                <Text style={styles.infoColumn}>O aluno não está matriculado</Text>
+                            )}
+                        </View>
+                    </View>
+                    <Text style={styles.topic}>Nome:</Text>
+                    <Text style={styles.info}>{aluno?.objeto_usuario.first_name} {aluno?.objeto_usuario.last_name}</Text>
+
+                    <Text style={styles.topic}>Data de Nascimento:</Text>
+                    <Text style={styles.info}>
+                        {aluno?.data_nascimento ? 
+                            format(aluno?.data_nascimento, 'dd/MM/yyyy')
+                            : ''}
+                    </Text>
+                    
+                    <Text style={styles.topic}>Endereço:</Text>
+                    <Text style={styles.info}>{aluno?.endereco}</Text>
+                    
+                    <Text style={styles.topic}>Email(s):</Text>
+                    {aluno?.objetos_emails.map((item, index) => (
+                        <Text style={styles.infoColumn} key={index}>{item.endereco}</Text>
+                    ))}
+                    
+                    <Text style={styles.topic}>Telefone(s):</Text>
+                    {aluno?.objetos_telefones.map((item, index) => (
+                        <Text style={styles.infoColumn} key={index}>{item.numero}</Text>
+                    ))}
+                    
+                    <Text style={styles.topic}>Enfermidade/Necessidade Especial:</Text>
+                    <Text style={styles.info}>{aluno?.eh_pcd ? 'Sim' : 'Não'}</Text>
+                    
+                </View>
+            </ScrollView>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    scrollContainer: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: '#d9d9d9',
-        width: '100%',
-    },
     container: {
         flex: 1,
         backgroundColor: '#d9d9d9',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
         paddingHorizontal: 10,
-        width: '100%',
     },
     header: {
         width: '100%',
@@ -237,7 +229,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#d9d9d9',
         paddingHorizontal: 37,
-        marginBottom: 17,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -272,6 +263,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 17,
         marginBottom: 30,
     },
     text: {

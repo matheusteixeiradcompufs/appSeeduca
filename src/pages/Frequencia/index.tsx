@@ -93,8 +93,8 @@ export default function Frequencia(){
     const presencas = frequencia?.objetos_diasletivos.filter(item => item.presenca === true);
     
     return(
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.container}>
+        <View style={styles.container}>
+            <ScrollView>
                 <View style={styles.header}>
                     <Image 
                         style={styles.logoLeft}
@@ -137,26 +137,16 @@ export default function Frequencia(){
                 </View>
 
                 <Text style={styles.alert}>O aluno precisa ter ao menos 75% de frequência para passar de ano</Text>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    scrollContainer: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: '#d9d9d9',
-        width: '100%',
-    },
     container: {
         flex: 1,
         backgroundColor: '#d9d9d9',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
         paddingHorizontal: 10,
-        width: '100%',
     },
     header: {
         width: '100%',
@@ -166,7 +156,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#d9d9d9',
         paddingHorizontal: 37,
-        marginBottom: 17,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -201,6 +190,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 17,
         marginBottom: 30,
     },
     text: {
