@@ -236,6 +236,11 @@ export default function Dashboard(){
         alunoMatriculado && turmas ? navigation.navigate('Agenda', { id: turmas[turmas.length - 1].objeto_agenda.id }) : alert("Aluno não está matriculado em nenhuma turma ou a turma não tem agenda cadastrada!");
     }
 
+    async function openMural() {
+        const escola = aluno?.escola as number | string;
+        navigation.navigate('Mural', { id: 1 });
+    }
+
     if(loading){
         return(
             <View
@@ -334,7 +339,10 @@ export default function Dashboard(){
                 </View>
             
                 <View style={styles.lineContainer}>
-                    <TouchableOpacity style={[styles.button, {marginRight: 20}]}>
+                    <TouchableOpacity 
+                        style={[styles.button, {marginRight: 20}]}
+                        onPress={openMural}
+                    >
                         <View>
                             <Text style={styles.textButton}>Mural de</Text>
                             <Text style={styles.textButton}>Avisos</Text>

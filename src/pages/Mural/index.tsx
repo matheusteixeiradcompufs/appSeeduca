@@ -1,53 +1,49 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { FontAwesome5 } from '@expo/vector-icons'
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { StackAppParamsList } from "../../routes/app.routes";
 import { api } from "../../services/api";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { ListItem } from "@rneui/themed";
 
 type RouteDetailParams = {
-    MinhaEscola: {
+    Mural: {
         id: number | string;
     }
 }
 
-type TelefoneProps = {
+type AvisoProps = {
     id: number | string;
-    numero: string;
-    escola: number | string;
+    titulo: string;
+    texto: string;
+    publicado_em: Date | string;
 }
 
-type EmailProps = {
+type MuralProps = {
     id: number | string;
-    endereco: string;
-    escola: number | string;
+    ano: number | string;
+    objetos_avisos: AvisoProps[];
 }
 
-type MinhaEscolaProps = {
+type EscolaProps = {
     id: number | string;
-    cnpj: string;
-    nome: string;
-    endereco: string;
-    num_salas: number | string;
-    descricao: string;
-    criado_em: Date | string;
-    atualizado_em: Date | string;
-    imagem: string; 
-    objetos_telefones: TelefoneProps[];
-    objetos_emails: EmailProps[];
+    objetos_murais: MuralProps[]; 
 }
 
-type MinhaEscolaRouteProps = RouteProp<RouteDetailParams, 'MinhaEscola'>;
+type MuralRouteProps = RouteProp<RouteDetailParams, 'Mural'>;
 
-export default function MinhaEscola(){
+export default function Mural(){
+
     const [loading, setLoading] = useState(true);
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
-    const route = useRoute<MinhaEscolaRouteProps>();
+    const route = useRoute<MuralRouteProps>();
 
-    const [minhaEscola, setMinhaEscola] = useState<MinhaEscolaProps | undefined>();
+    const [escola, setEscola] = useState<EscolaProps | undefined>();
+
+    const [avisoExpanded, setAvisoExpanded] = useState<boolean[]>([false]);
 
     useEffect(() => {
         const loadEscola = async () => {    
@@ -57,30 +53,12 @@ export default function MinhaEscola(){
                 
                 const {
                     id,
-                    cnpj,
-                    nome,
-                    endereco,
-                    num_salas,
-                    descricao,
-                    criado_em,
-                    atualizado_em,
-                    imagem, 
-                    objetos_telefones,
-                    objetos_emails
+                    objetos_murais
                 } = await response.data;
 
-                setMinhaEscola({
+                setEscola({
                     id: id,
-                    cnpj: cnpj,
-                    nome: nome,
-                    endereco: endereco,
-                    num_salas: num_salas,
-                    descricao: descricao,
-                    criado_em: criado_em,
-                    atualizado_em: atualizado_em,
-                    imagem: imagem, 
-                    objetos_telefones: objetos_telefones,
-                    objetos_emails: objetos_emails
+                    objetos_murais: objetos_murais
                 });
 
                 setLoading(false);
@@ -108,6 +86,11 @@ export default function MinhaEscola(){
         )
     }
 
+    const data = new Date();
+    const temMural = escola?.objetos_murais.some(objeto => objeto.ano === data.getFullYear());
+    let mural;
+    temMural ? mural = escola?.objetos_murais.filter(objeto => objeto.ano === data.getFullYear()) : alert(`Ainda não existe mural em ${data.getFullYear()}`) ;
+
     return(
         <View style={styles.container}>
             <ScrollView>
@@ -132,46 +115,47 @@ export default function MinhaEscola(){
                     >
                         <FontAwesome5 name="arrow-left" size={45} color='#d9d9d9' />
                     </TouchableOpacity>
-                    <Text style={styles.text}>Minha Escola</Text>
-                    <FontAwesome5 name="school" size={45} color='#d9d9d9' />
+                    <Text style={styles.text}>Mural de Avisos</Text>
+                    <FontAwesome5 name="chalkboard" size={45} color='#d9d9d9' />
                 </View>
 
                 <View style={styles.content}>
-                    <Text style={styles.topic}>CNPJ:</Text>
-                    <Text style={styles.info}>{minhaEscola?.cnpj}</Text>
-
-                    <Text style={styles.topic}>Nome:</Text>
-                    <Text style={styles.info}>{ minhaEscola?.nome }</Text>
-                    
-                    <Text style={styles.topic}>Descrição:</Text>
-                    <Text style={styles.info}>{minhaEscola?.descricao}</Text>
-                    
-                    <Text style={styles.topic}>Endereço:</Text>
-                    <Text style={styles.info}>{minhaEscola?.endereco}</Text>
-                    
-                    <Text style={styles.topic}>Número de Salas:</Text>
-                    <Text style={styles.info}>{minhaEscola?.num_salas} salas</Text>
-                    
-                    <Text style={styles.topic}>Telefone:</Text>
-                    {minhaEscola?.objetos_telefones && minhaEscola.objetos_telefones.length > 0 ? (
-                        minhaEscola.objetos_telefones.map((item) => (
-                        <Text key={item.id} style={styles.info}>{item.numero}</Text>
-                        ))
-                    ) : (
-                        <Text style={styles.info}>Nenhum telefone disponível</Text>
-                    )}
-                    
-                    <Text style={styles.topic}>Email:</Text>
-                    {minhaEscola?.objetos_emails && minhaEscola.objetos_emails.length > 0 ? (
-                        minhaEscola.objetos_emails.map((item) => (
-                        <Text key={item.id} style={styles.info}>{item.endereco}</Text>
-                        ))
-                    ) : (
-                        <Text style={styles.info}>Nenhum email disponível</Text>
-                    )}
+                    {mural && mural[0].objetos_avisos.reverse().map((aviso, index) => (
+                        <ListItem.Accordion 
+                            key={index}
+                            content={
+                                <>
+                                    <ListItem.Content>
+                                        <ListItem.Title style={styles.avisoTitle}>{aviso.publicado_em.toString()}</ListItem.Title>
+                                    </ListItem.Content>
+                                </>
+                            }
+                            containerStyle={styles.accordionContainer}
+                            isExpanded={avisoExpanded[index]}
+                            onPress={() => {
+                                setAvisoExpanded((prevExpanded) => {
+                                    const newExpanded = [...prevExpanded];
+                                    newExpanded[index] = !prevExpanded[index];
+                                    return newExpanded;
+                                });
+                            }}
+                            icon={ <FontAwesome5 name="angle-down" size={25} color='#d9d9d9' /> } 
+                        >
+                                <ListItem  
+                                    bottomDivider
+                                >
+                                    <ListItem.Content>
+                                        <ListItem.Title style={styles.itemTitle}>{aviso.titulo}</ListItem.Title>
+                                        <ListItem.Subtitle style={styles.itemContent}>{aviso.texto}</ListItem.Subtitle>
+                                    </ListItem.Content>
+                                    
+                                </ListItem>
+                            
+                        </ListItem.Accordion>    
+                    ))}
                 </View>
             </ScrollView>
-        </View>
+        </View>    
     )
 }
 
@@ -231,23 +215,27 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#d9d9d9',
         marginLeft: 16,
-        marginRight: 37,
+        marginRight: 7,
     },
     content: {
         width: '100%',
         backgroundColor: '#02489a',
+        padding: 10,
         borderRadius: 8,
-        paddingHorizontal: 13,
-        paddingVertical: 30,
     },
-    topic: {
+    avisoTitle: {
         color: '#d9d9d9',
-        fontSize: 20,
         fontWeight: 'bold',
     },
-    info: {
-        color: '#d9d9d9',
-        fontSize: 20,
-        marginBottom: 14
+    itemTitle: {
+        color: '#02489a',
+        fontWeight: 'bold',
     },
+    itemContent: {
+        color: '#02489a',
+    },
+    accordionContainer: {
+        backgroundColor: '#02489a',
+    },
+
 });
