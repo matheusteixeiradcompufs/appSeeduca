@@ -197,32 +197,9 @@ export default function Dashboard(){
         navigation.navigate('Pessoal', { id: id });
     }
 
-    async function openFrequencia() {
-        const hasFrequencia = aluno?.objetos_frequencias.some(objeto => objeto.ano === dataAtual.getFullYear());
-        let id = -1;
-        {aluno?.objetos_frequencias.map((item, index) => (
-            item.ano === dataAtual.getFullYear() ? id = aluno.aluno_frequencias[index] : id = id
-        ))}
-        navigation.navigate('Frequencia', { id: id, hasFrequencia: hasFrequencia as boolean });
-    }
-
-    async function openTransporte() {
-        const hasTransporte = aluno?.objetos_transportes.some(objeto => objeto.ano === dataAtual.getFullYear());
-        let id = -1;
-        {aluno?.objetos_transportes.map((item, index) => (
-            item.ano === dataAtual.getFullYear() ? id = aluno.alunos_transportes[index] : id = id
-        ))}
-        navigation.navigate('Transporte', { id: id, hasTransporte: hasTransporte as boolean });
-    }
-
     async function openCarteira() {
         const id = aluno?.id as number | string;
         navigation.navigate('Carteira', { id: id});
-    }
-
-    async function openNotas() {
-        const id = aluno?.id as number | string;
-        navigation.navigate('Notas', { id: id});
     }
 
     async function openMerenda() {
@@ -230,15 +207,34 @@ export default function Dashboard(){
         navigation.navigate('Merenda', { id: escola });
     }
 
+    async function openMural() {
+        const escola = aluno?.escola as number | string;
+        navigation.navigate('Mural', { id: escola });
+    }
+
+    async function openFrequencia() {
+        const hasFrequencia = aluno?.objetos_frequencias.some(objeto => objeto.ano === dataAtual.getFullYear());
+        const frequencias = aluno?.objetos_frequencias.filter((objeto) => (objeto.ano === dataAtual.getFullYear())); 
+        frequencias && hasFrequencia ? navigation.navigate('Frequencia', { id: frequencias[0].id}) : alert("Você ainda não possui frequência para esse ano!");
+    }
+
+    async function openTransporte() {
+        const hasTransporte = aluno?.objetos_transportes.some(objeto => objeto.ano === dataAtual.getFullYear());
+        const transportes = aluno?.objetos_transportes.filter((objeto) => (objeto.ano === dataAtual.getFullYear())); 
+        transportes && hasTransporte ? navigation.navigate('Transporte', { id: transportes[0].id}) : alert("Você ainda não tem um transporte esse ano!");
+    }
+
+    async function openNotas() {
+        const hasBoletim = aluno?.objetos_boletins.some(objeto => objeto.ano === dataAtual.getFullYear());
+        const boletins = aluno?.objetos_boletins.filter(objeto => objeto.ano === dataAtual.getFullYear());
+        boletins && hasBoletim ? navigation.navigate('Notas', { id: boletins[0].id}) : alert("Você ainda não tem um boletim cadastrado esse ano!");
+        
+    }
+
     async function openAgenda() {
         const alunoMatriculado = aluno?.objetos_turmas.some(objeto => objeto.ano === dataAtual.getFullYear());
         const turmas = aluno?.objetos_turmas.filter(objeto => objeto.ano === dataAtual.getFullYear());
         alunoMatriculado && turmas ? navigation.navigate('Agenda', { id: turmas[turmas.length - 1].objeto_agenda.id }) : alert("Aluno não está matriculado em nenhuma turma ou a turma não tem agenda cadastrada!");
-    }
-
-    async function openMural() {
-        const escola = aluno?.escola as number | string;
-        navigation.navigate('Mural', { id: 1 });
     }
 
     if(loading){

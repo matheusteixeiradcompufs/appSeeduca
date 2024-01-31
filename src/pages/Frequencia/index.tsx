@@ -10,7 +10,6 @@ import { api } from "../../services/api";
 type RouteDetailParams = {
     Frequencia: {
         id: number | string;
-        hasFrequencia: boolean;
     }
 }
 

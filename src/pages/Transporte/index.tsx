@@ -9,7 +9,6 @@ import { api } from "../../services/api";
 type RouteDetailParams = {
     Transporte: {
         id: number | string;
-        hasTransporte: boolean;
     }
 }
 

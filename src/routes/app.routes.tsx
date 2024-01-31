@@ -21,11 +21,9 @@ export type StackAppParamsList = {
     };
     Frequencia: {
         id: number | string;
-        hasFrequencia: boolean;
     };
     Transporte: {
         id: number | string;
-        hasTransporte: boolean;
     };
     Carteira: {
         id: number | string;
