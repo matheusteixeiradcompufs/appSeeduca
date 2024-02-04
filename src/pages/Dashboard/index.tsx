@@ -94,6 +94,20 @@ type TurmaProps = {
     objeto_agenda: AgendaProps;
 }
 
+type RecadoProps = {
+    id: number | string;
+    texto: string;
+    eh_aluno: boolean;
+    publicado_em: Date | string;
+    transporte: number | string;
+}
+
+type AgendaRecadosProps = {
+    id: number | string;
+    ano: number | string;
+    objetos_recados: RecadoProps[];
+}
+
 type AlunoProps = {
     id: number | string;
     escola: number | string;
@@ -105,6 +119,7 @@ type AlunoProps = {
     objetos_frequencias: FrequenciaProps[];
     objetos_transportes: TransporteProps[];
     objetos_boletins: BoletimProps[];
+    objetos_agendas: AgendaRecadosProps[];
 }
 
 
@@ -133,6 +148,7 @@ export default function Dashboard(){
                     objetos_frequencias,
                     objetos_transportes,
                     objetos_boletins, 
+                    objetos_agendas,
                 } = response.data;
 
                 setAluno({ 
@@ -146,6 +162,7 @@ export default function Dashboard(){
                     objetos_frequencias: objetos_frequencias,
                     objetos_transportes: objetos_transportes,
                     objetos_boletins: objetos_boletins,
+                    objetos_agendas: objetos_agendas,
                 });
 
             }catch(err){
@@ -228,6 +245,13 @@ export default function Dashboard(){
         const hasBoletim = aluno?.objetos_boletins.some(objeto => objeto.ano === dataAtual.getFullYear());
         const boletins = aluno?.objetos_boletins.filter(objeto => objeto.ano === dataAtual.getFullYear());
         boletins && hasBoletim ? navigation.navigate('Notas', { id: boletins[0].id}) : alert("Você ainda não tem um boletim cadastrado esse ano!");
+        
+    }
+
+    async function openRecado() {
+        const hasAgenda = aluno?.objetos_agendas.some(objeto => objeto.ano === dataAtual.getFullYear());
+        const agendas = aluno?.objetos_agendas.filter(objeto => objeto.ano === dataAtual.getFullYear());
+        agendas && hasAgenda ? navigation.navigate('Recado', { id: agendas[0].id}) : alert("Você ainda não tem uma agenda de recados esse ano!");
         
     }
 
@@ -356,7 +380,10 @@ export default function Dashboard(){
                 </View>
             
                 <View style={styles.lineContainer}>
-                    <TouchableOpacity style={[styles.button, {marginRight: 20}]}>
+                    <TouchableOpacity 
+                        style={[styles.button, {marginRight: 20}]}
+                        onPress={openRecado}
+                    >
                         <Text style={styles.textButton}>Recado</Text>
                         <FontAwesome5 name="comments" size={45} color='#d9d9d9' />
                     </TouchableOpacity>

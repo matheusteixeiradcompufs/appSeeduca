@@ -10,6 +10,7 @@ import Notas from "../pages/Notas";
 import Merenda from "../pages/Merenda";
 import Agenda from "../pages/Agenda";
 import Mural from "../pages/Mural";
+import Recado from "../pages/Recado";
 
 export type StackAppParamsList = {
     Dashboard: undefined;
@@ -38,6 +39,9 @@ export type StackAppParamsList = {
         id: number | string;
     };
     Mural: {
+        id: number | string;
+    };
+    Recado: {
         id: number | string;
     };
 }
@@ -113,6 +117,13 @@ function AppRoutes(){
             <Stack.Screen 
                 name='Mural' 
                 component={Mural}  
+                options={{
+                    headerShown: false
+                }}
+            />
+            <Stack.Screen 
+                name='Recado' 
+                component={Recado}  
                 options={{
                     headerShown: false
                 }}
