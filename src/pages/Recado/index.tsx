@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons'
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
@@ -41,6 +41,11 @@ export default function Recado(){
 
     const [texto, setTexto] = useState('');
 
+    const [mensagens, setMensagens] = useState<RecadoProps[]>([]);
+
+    const scrollEndRef = useRef<ScrollView>(null);
+
+
     useEffect(() => {
         const loadAgenda = async () => {    
             setLoading(true);
@@ -53,13 +58,13 @@ export default function Recado(){
                     objetos_recados,
                 } = await response.data;
 
-                console.log(response.data);
-
                 setAgenda({
                     id: id,
                     ano: ano,
                     objetos_recados: objetos_recados,
                 });
+
+                setMensagens(objetos_recados); 
 
                 setLoading(false);
             }catch(err){
@@ -70,6 +75,25 @@ export default function Recado(){
 
         loadAgenda();
     }, []);
+
+    useEffect(() => {
+        scrollEndRef.current?.scrollToEnd({ animated: true });
+    }, [mensagens]);
+
+    async function enviarMensagem(){
+        try{
+            const response = await api.post(`/pessoas/aluno/agenda/recado/api/v1/`, {
+                texto: texto,
+                agenda: route.params?.id,
+            });
+
+            setTexto('');
+
+            setMensagens([...mensagens, response.data]);
+        }catch(err){
+            console.log(err);
+        }
+    }
 
     if(loading){
         return(
@@ -114,12 +138,14 @@ export default function Recado(){
                 </View>
 
                 <View style={styles.content}>
-                    <ScrollView >
-                        
-                        <View style={styles.bubblealunofalse}>
-                            <Text style={styles.textalunofalse}></Text>
-                        </View>
-                         
+                    <ScrollView
+                        ref={scrollEndRef}
+                    >
+                        {mensagens.map((objeto, index)=>(
+                            <View key={index} style={objeto.eh_aluno ? styles.bubbleAluno : styles.bubbleEscola}>
+                                <Text style={objeto.eh_aluno ? styles.textAluno : styles.textEscola}>{objeto.texto}</Text>
+                            </View>
+                        ))}    
                     </ScrollView>
                 </View>
                     <View style={styles.inputLine}>
@@ -130,7 +156,10 @@ export default function Recado(){
                             value={texto}
                             onChangeText={setTexto}
                         />
-                        <TouchableOpacity style={styles.button}>
+                        <TouchableOpacity 
+                            style={styles.button}
+                            onPress={enviarMensagem}
+                        >
                             <Text style={styles.textButton}>Enviar</Text>
                         </TouchableOpacity>
                     </View>
@@ -232,7 +261,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 20,
     },
-    bubblealunotrue: {
+    bubbleAluno: {
         maxWidth: '60%',
         backgroundColor: '#00b2ff',
         marginBottom: 14,
@@ -245,11 +274,11 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         fontWeight: 'bold',
     },
-    textalunotrue: {
+    textAluno: {
         fontSize: 20,
         color: '#fff',
     },
-    bubblealunofalse: {
+    bubbleEscola: {
         maxWidth: '60%',
         backgroundColor: '#fff',
         marginBottom: 14,
@@ -261,7 +290,7 @@ const styles = StyleSheet.create({
         padding: 5, 
         alignSelf: 'flex-start',
     },
-    textalunofalse: {
+    textEscola: {
         fontSize: 20,
         color: '#02489a',
         fontWeight: 'bold',
