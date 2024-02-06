@@ -73,7 +73,24 @@ export default function Recado(){
             }
         };
 
+        const loadDataInterval = setInterval( async () => {
+            try{
+                const response = await api.get(`/pessoas/aluno/agenda/api/v1/${route.params?.id}`);
+                
+                const {
+                    objetos_recados,
+                } = await response.data || { objetos_recados: []};
+
+                setMensagens(objetos_recados); 
+            }catch(err){
+                console.log(err);
+            }
+        }, 1000);
+
         loadAgenda();
+      
+          // Cleanup function to clear the interval when component is unmounted
+        return () => clearInterval(loadDataInterval);
     }, []);
 
     useEffect(() => {

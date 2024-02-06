@@ -27,7 +27,7 @@ type LoginProps = {
     password: string;
 }
 
-const API_BASE_URL = 'http://192.168.25.46/api';
+const API_BASE_URL = 'http://192.168.0.110/api';
 
 export const AuthContext = createContext({} as AuthContextData);
 
