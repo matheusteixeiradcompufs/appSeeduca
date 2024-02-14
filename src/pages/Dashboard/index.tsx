@@ -7,11 +7,9 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
 import { api } from "../../services/api";
 
-type DiaLetivoProps = {
+type SalaProps = {
     id: number | string;
-    data: Date | string;
-    presenca: boolean;
-    frequencia: number | string;
+    escola: number | string;
 }
 
 type TelefoneProps = {
@@ -30,13 +28,6 @@ type AvaliacaoProps = {
     turma: number | string;
 }
 
-type BoletimProps = {
-    id: number | string;
-    ano: number | string;
-    aluno: number | string;
-    objetos_avaliacoes: AvaliacaoProps[];
-}
-
 type TransporteProps = {
     id: number | string;
     placa: string;
@@ -46,14 +37,6 @@ type TransporteProps = {
     nomeAuxiliar: string;
     itinerario: string; 
     objetos_telefones: TelefoneProps[];
-}
-
-type FrequenciaProps = {
-    id: number | string;
-    ano: number | string;
-    percentual: number;
-    aluno: number | string;
-    objetos_disletivos: DiaLetivoProps[];
 }
 
 type TarefaProps = {
@@ -90,6 +73,7 @@ type AgendaProps = {
 
 type TurmaProps = {
     id: number | string;
+    sala: number | string;
     ano: number | string;
     objeto_agenda: AgendaProps;
 }
@@ -108,15 +92,19 @@ type AgendaRecadosProps = {
     objetos_recados: RecadoProps[];
 }
 
+type FrequenciaProps = {
+    id: number | string;
+}
+
+type BoletimProps = {
+    id: number | string;
+    objeto_turma: TurmaProps;
+    objeto_frequencia: FrequenciaProps;
+    objetos_avaliacoes: AvaliacaoProps[];
+}
+
 type AlunoProps = {
     id: number | string;
-    escola: number | string;
-    turmas: number[];
-    aluno_boletins: number[];
-    aluno_frequencias: number[];
-    alunos_transportes:[];
-    objetos_turmas: TurmaProps[];
-    objetos_frequencias: FrequenciaProps[];
     objetos_transportes: TransporteProps[];
     objetos_boletins: BoletimProps[];
     objetos_agendas: AgendaRecadosProps[];
@@ -126,44 +114,35 @@ type AlunoProps = {
 export default function Dashboard(){
     const { user, loading, logout } = useContext(AuthContext);
 
+    const [loadingUser, setLoadingUser] = useState(true);
+
     const [aluno, setAluno] = useState<AlunoProps>();
+    const [sala, setSala] = useState<SalaProps>();
 
     const dataAtual = new Date();
 
     useEffect(() => {
-        const loadUser = async () => {    
+        const loadUser = async () => { 
+            setLoadingUser(true);
             try{
-                const response = await api.post('/pessoas/me', {
+                const response = await api.post('/pessoas/me/', {
                     username: user.username
                 });
                 
                 const { 
                     id,
-                    escola, 
-                    turmas, 
-                    aluno_boletins, 
-                    aluno_frequencias, 
-                    alunos_transportes,
-                    objetos_turmas,
-                    objetos_frequencias,
                     objetos_transportes,
                     objetos_boletins, 
                     objetos_agendas,
                 } = response.data;
 
                 setAluno({ 
-                    id: id,
-                    escola: escola, 
-                    turmas: turmas, 
-                    aluno_boletins: aluno_boletins, 
-                    aluno_frequencias: aluno_frequencias, 
-                    alunos_transportes: alunos_transportes ,
-                    objetos_turmas: objetos_turmas,
-                    objetos_frequencias: objetos_frequencias,
+                    id: id, 
                     objetos_transportes: objetos_transportes,
                     objetos_boletins: objetos_boletins,
                     objetos_agendas: objetos_agendas,
                 });
+
 
             }catch(err){
                 console.log(err);
@@ -172,6 +151,39 @@ export default function Dashboard(){
 
         loadUser();
     }, []);
+
+    useEffect(() => {
+
+        const loadSala = async() => {
+            setLoadingUser(true);
+            
+            const alunoMatriculado = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+            const boletins = aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+            if (alunoMatriculado) {
+                try{
+                    const response = await api.get(`/escolas/sala/api/v1/${boletins && boletins[boletins.length-1].objeto_turma.sala}/`);
+                    
+                    const { 
+                        id,
+                        escola,
+                    } = response.data;
+
+                    setSala({ 
+                        id: id, 
+                        escola: escola,
+                    });
+
+                    setLoadingUser(false);
+
+                }catch(err){
+                    console.log(err);
+                }
+            }
+        }
+
+        loadSala();
+
+    }, [aluno])
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
 
@@ -205,8 +217,7 @@ export default function Dashboard(){
     }
 
     async function openMinhaEscola() {
-        const escola = aluno?.escola as number | string;
-        navigation.navigate('MinhaEscola', { id: escola });
+        sala?.escola ? navigation.navigate('MinhaEscola', { id: sala?.escola }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
     }
 
     async function openPessoal() {
@@ -216,23 +227,24 @@ export default function Dashboard(){
 
     async function openCarteira() {
         const id = aluno?.id as number | string;
-        navigation.navigate('Carteira', { id: id});
+        sala ? navigation.navigate('Carteira', { id: id, escola: sala?.escola}) : alert('Você ainda não está matriculado em nehuma turma esse ano!');
     }
 
     async function openMerenda() {
-        const escola = aluno?.escola as number | string;
-        navigation.navigate('Merenda', { id: escola });
+        sala?.escola ? navigation.navigate('Merenda', { id: sala?.escola }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
     }
 
     async function openMural() {
-        const escola = aluno?.escola as number | string;
-        navigation.navigate('Mural', { id: escola });
+        sala?.escola ? navigation.navigate('Mural', { id: sala?.escola }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
     }
 
     async function openFrequencia() {
-        const hasFrequencia = aluno?.objetos_frequencias.some(objeto => objeto.ano === dataAtual.getFullYear());
-        const frequencias = aluno?.objetos_frequencias.filter((objeto) => (objeto.ano === dataAtual.getFullYear())); 
-        frequencias && hasFrequencia ? navigation.navigate('Frequencia', { id: frequencias[0].id}) : alert("Você ainda não possui frequência para esse ano!");
+        const hasBoletim = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+        const boletins = aluno?.objetos_boletins.filter((objeto) => (objeto.objeto_turma.ano === dataAtual.getFullYear()));
+        if (boletins && hasBoletim) {
+            const hasFrequencia =  !!boletins[boletins.length - 1].objeto_frequencia
+            hasFrequencia ? navigation.navigate('Frequencia', { id: boletins[boletins.length - 1].objeto_frequencia.id}) : alert("Você ainda não possui frequência para esse ano!");
+        } 
     }
 
     async function openTransporte() {
@@ -242,10 +254,9 @@ export default function Dashboard(){
     }
 
     async function openNotas() {
-        const hasBoletim = aluno?.objetos_boletins.some(objeto => objeto.ano === dataAtual.getFullYear());
-        const boletins = aluno?.objetos_boletins.filter(objeto => objeto.ano === dataAtual.getFullYear());
-        boletins && hasBoletim ? navigation.navigate('Notas', { id: boletins[0].id}) : alert("Você ainda não tem um boletim cadastrado esse ano!");
-        
+        const hasBoletim = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+        const boletins = aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+        boletins && hasBoletim ? navigation.navigate('Notas', { id: boletins[boletins.length - 1].id}) : alert("Você ainda não tem um boletim cadastrado esse ano!");        
     }
 
     async function openRecado() {
@@ -256,12 +267,16 @@ export default function Dashboard(){
     }
 
     async function openAgenda() {
-        const alunoMatriculado = aluno?.objetos_turmas.some(objeto => objeto.ano === dataAtual.getFullYear());
-        const turmas = aluno?.objetos_turmas.filter(objeto => objeto.ano === dataAtual.getFullYear());
-        alunoMatriculado && turmas ? navigation.navigate('Agenda', { id: turmas[turmas.length - 1].objeto_agenda.id }) : alert("Aluno não está matriculado em nenhuma turma ou a turma não tem agenda cadastrada!");
+        const alunoMatriculado = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+        const boletins = aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+        alunoMatriculado && boletins ? navigation.navigate('Agenda', { id: boletins[boletins.length - 1].objeto_turma.objeto_agenda.id }) : alert("Aluno não está matriculado em nenhuma turma ou a turma não tem agenda cadastrada!");
     }
 
-    if(loading){
+    async function openHistorico() {
+        navigation.navigate('Historico', {id: 1});
+    }
+
+    if(loading || loadingUser){
         return(
             <View
                 style={{
@@ -401,7 +416,10 @@ export default function Dashboard(){
                 </View>
             
                 <View style={styles.lineContainer}>
-                    <TouchableOpacity style={[styles.button, {marginRight: 20}]}>
+                    <TouchableOpacity 
+                        style={[styles.button, {marginRight: 20}]}
+                        onPress={openHistorico}
+                    >
                         <Text style={styles.textButton}>Histórico</Text>
                         <FontAwesome5 name="history" size={45} color='#d9d9d9' />
                     </TouchableOpacity>

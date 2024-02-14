@@ -18,7 +18,6 @@ type TurmaProps = {
     nome: string;
     ano: number | string;
     turno: string;
-    sala: number | string;
 }
 
 type UserProps = {
@@ -41,19 +40,23 @@ type EmailProps = {
     escola: number | string;
 }
 
+type BoletimProps = {
+    id: number | string;
+    objeto_turma: TurmaProps;
+}
+
 type AlunoProps = {
     id: number | string;
     matricula: string;
-    turmas: number[] | string[];
     cpf: string;
     data_nascimento: string;
     endereco: string;
     eh_pcd: boolean;
-    descricao_pcd: string;
+    retrato: string;
     objeto_usuario: UserProps;
     objetos_telefones: TelefoneProps[];
     objetos_emails: EmailProps[];
-    objetos_turmas: TurmaProps[];
+    objetos_boletins: BoletimProps[];
 }
 
 type AlunoRouteProps = RouteProp<RouteDetailParams, 'Pessoal'>;
@@ -78,31 +81,29 @@ export default function Pessoal(){
                 const {
                     id,
                     matricula,
-                    turmas,
                     cpf,
                     data_nascimento,
                     endereco,
                     eh_pcd,
-                    descricao_pcd,
+                    retrato,
                     objeto_usuario, 
                     objetos_emails,
                     objetos_telefones,
-                    objetos_turmas
+                    objetos_boletins,
                 } = await response.data;
 
                 setAluno({
                     id: id,
                     matricula: matricula,
-                    turmas: turmas,
                     cpf: cpf,
                     data_nascimento: data_nascimento,
                     endereco: endereco,
                     eh_pcd: eh_pcd,
-                    descricao_pcd: descricao_pcd,
+                    retrato: retrato,
                     objeto_usuario: objeto_usuario,
                     objetos_emails: objetos_emails,
                     objetos_telefones: objetos_telefones,
-                    objetos_turmas: objetos_turmas
+                    objetos_boletins: objetos_boletins,
                 });
 
                 setLoading(false);
@@ -130,7 +131,8 @@ export default function Pessoal(){
         )
     }
 
-    const alunoMatriculado = aluno?.objetos_turmas.some(objeto => objeto.ano === dataAtual.getFullYear());
+    const alunoMatriculado = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+    const boletins = aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
     
     return(
         <View style={styles.container}>
@@ -164,23 +166,17 @@ export default function Pessoal(){
                     <View style={styles.lineImage}>
                         <Image
                             style={styles.photo}
-                            source={require('../../assets/Foto.png')} 
+                            source={ aluno?.retrato ?  { uri: aluno?.retrato } : require('../../assets/Foto.png')} 
                         />
                         <View style={styles.column}>
                             <Text style={styles.topicColumn}>Matricula:</Text>
                             <Text style={styles.infoColumn}>{aluno?.matricula}</Text>
                             
                             <Text style={styles.topicColumn}>Turma</Text>
-                            {alunoMatriculado ? (
-                                aluno?.objetos_turmas.map(objeto => {
-                                if (objeto.ano === dataAtual.getFullYear()) {
-                                    return <Text style={styles.infoColumn} key={objeto.id}>{objeto.nome}</Text>;
-                                }
-                                return null; 
-                                })
-                            ) : (
+                            {alunoMatriculado ? 
+                                <Text style={styles.infoColumn}>{ boletins && boletins[0].objeto_turma.nome }</Text> : 
                                 <Text style={styles.infoColumn}>O aluno não está matriculado</Text>
-                            )}
+                            }
                         </View>
                     </View>
                     <Text style={styles.topic}>Nome:</Text>

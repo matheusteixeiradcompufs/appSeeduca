@@ -8,6 +8,7 @@ import { api } from "../../services/api";
 type RouteDetailParams = {
     Carteira: {
         id: number | string;
+        escola: number | string;
     }
 }
 
@@ -29,16 +30,7 @@ type UserProps = {
 
 type EscolaProps = {
     id: number | string;
-    cnpj: string;
     nome: string;
-    endereco: string;
-    num_salas: number | string;
-    descricao: string;
-    criado_em: Date | string;
-    atualizado_em: Date | string;
-    imagem: string; 
-    objetos_telefones: TelefoneProps[];
-    objetos_emails: EmailProps[];
 }
 
 type TelefoneProps = {
@@ -53,20 +45,23 @@ type EmailProps = {
     escola: number | string;
 }
 
+type BoletimProps = {
+    id: number | string;
+    objeto_turma: TurmaProps;
+}
+
 type AlunoProps = {
     id: number | string;
     matricula: string;
-    turmas: number[] | string[];
     cpf: string;
     data_nascimento: string;
     endereco: string;
     eh_pcd: boolean;
-    descricao_pcd: string;
-    objeto_escola: EscolaProps;
+    retrato: string;
     objeto_usuario: UserProps;
     objetos_telefones: TelefoneProps[];
     objetos_emails: EmailProps[];
-    objetos_turmas: TurmaProps[];
+    objetos_boletins: BoletimProps[];
 }
 
 type AlunoRouteProps = RouteProp<RouteDetailParams, 'Carteira'>;
@@ -78,7 +73,8 @@ export default function Carteira(){
     
     const route = useRoute<AlunoRouteProps>();
 
-    const [aluno, setAluno] = useState<AlunoProps | undefined>();
+    const [aluno, setAluno] = useState<AlunoProps>();
+    const [escola, setEscola] = useState<EscolaProps>();
 
     const dataAtual = new Date();
 
@@ -91,33 +87,52 @@ export default function Carteira(){
                 const {
                     id,
                     matricula,
-                    turmas,
                     cpf,
                     data_nascimento,
                     endereco,
                     eh_pcd,
-                    descricao_pcd,
+                    retrato,
                     objeto_usuario, 
-                    objeto_escola,
                     objetos_emails,
                     objetos_telefones,
-                    objetos_turmas
+                    objetos_boletins
                 } = await response.data;
 
                 setAluno({
                     id: id,
                     matricula: matricula,
-                    turmas: turmas,
                     cpf: cpf,
                     data_nascimento: data_nascimento,
                     endereco: endereco,
                     eh_pcd: eh_pcd,
-                    descricao_pcd: descricao_pcd,
+                    retrato: retrato,
                     objeto_usuario: objeto_usuario,
-                    objeto_escola: objeto_escola,
                     objetos_emails: objetos_emails,
                     objetos_telefones: objetos_telefones,
-                    objetos_turmas: objetos_turmas
+                    objetos_boletins: objetos_boletins
+                });
+
+            }catch(err){
+                console.log(err);
+            }
+        };
+
+        loadAluno();
+    }, []);
+    
+    useEffect(() => {
+        const loadEscola = async () => {    
+            try{
+                const response = await api.get(`/escolas/api/v1/${route.params?.escola}`);
+                
+                const {
+                    id,
+                    nome,
+                } = await response.data;
+
+                setEscola({
+                    id: id,
+                    nome: nome,
                 });
 
                 setLoading(false);
@@ -127,8 +142,8 @@ export default function Carteira(){
             }
         };
 
-        loadAluno();
-    }, []);
+        loadEscola();
+    }, [aluno]);
 
     if(loading){
         return(
@@ -145,7 +160,8 @@ export default function Carteira(){
         )
     }
 
-    const alunoMatriculado = aluno?.objetos_turmas.some(objeto => objeto.ano === dataAtual.getFullYear());
+    const alunoMatriculado = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+    const boletins = aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
     
     return(
         <View style={styles.container}>
@@ -154,7 +170,7 @@ export default function Carteira(){
                     <View>
                         <Image
                             style={styles.photo}
-                            source={require('../../assets/Foto.png')} 
+                            source={ aluno?.retrato ?  { uri: aluno?.retrato } : require('../../assets/Foto.png')} 
                         />
                     </View>
                     <View style={styles.column}>
@@ -162,16 +178,10 @@ export default function Carteira(){
                         <Text style={styles.infoColumn}>{ aluno?.matricula }</Text>
                         
                         <Text style={styles.topicColumn}>Turma:</Text>
-                        {alunoMatriculado ? (
-                            aluno?.objetos_turmas.map(objeto => {
-                            if (objeto.ano === dataAtual.getFullYear()) {
-                                return <Text style={styles.infoColumn} key={objeto.id}>{objeto.nome}</Text>;
-                            }
-                            return null; 
-                            })
-                        ) : (
+                        {alunoMatriculado ? 
+                            <Text style={styles.infoColumn}>{ boletins && boletins[boletins.length - 1].objeto_turma.nome }</Text> : 
                             <Text style={styles.infoColumn}>O aluno não está matriculado</Text>
-                        )}
+                        }
                     </View>
                 </View>
                 
@@ -180,7 +190,7 @@ export default function Carteira(){
                     <Text style={styles.infoColumn}>{ aluno?.objeto_usuario.first_name } { aluno?.objeto_usuario.last_name }</Text>
                     
                     <Text style={styles.topicColumn}>Escola:</Text>
-                    <Text style={styles.infoColumn}>{ aluno?.objeto_escola.nome }</Text>
+                    <Text style={styles.infoColumn}>{ escola?.nome }</Text>
                 </View>
                 <Text style={[styles.topicColumn, { fontSize: 20 }]}>Validade:</Text>
                 <Text style={[styles.infoColumn, { fontSize: 30 }]}>12/{dataAtual.getFullYear()}</Text>

@@ -11,6 +11,7 @@ import Merenda from "../pages/Merenda";
 import Agenda from "../pages/Agenda";
 import Mural from "../pages/Mural";
 import Recado from "../pages/Recado";
+import Historico from "../pages/Historico";
 
 export type StackAppParamsList = {
     Dashboard: undefined;
@@ -28,6 +29,7 @@ export type StackAppParamsList = {
     };
     Carteira: {
         id: number | string;
+        escola: number | string;
     };
     Notas: {
         id: number | string;
@@ -42,6 +44,9 @@ export type StackAppParamsList = {
         id: number | string;
     };
     Recado: {
+        id: number | string;
+    };
+    Historico: {
         id: number | string;
     };
 }
@@ -124,6 +129,13 @@ function AppRoutes(){
             <Stack.Screen 
                 name='Recado' 
                 component={Recado}  
+                options={{
+                    headerShown: false
+                }}
+            />
+            <Stack.Screen 
+                name='Historico' 
+                component={Historico}  
                 options={{
                     headerShown: false
                 }}

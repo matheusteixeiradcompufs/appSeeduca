@@ -185,7 +185,7 @@ export function AuthProvider({children}: AuthProviderProps){
         await obterTokens({ username, password });
 
         try{
-            const response = await api.post('/pessoas/me', {
+            const response = await api.post('/pessoas/me/', {
                 username
             });
 

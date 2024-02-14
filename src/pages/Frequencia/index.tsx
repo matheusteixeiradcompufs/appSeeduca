@@ -129,7 +129,7 @@ export default function Frequencia(){
                     <View style={[styles.leftBar, { width: `${percentual}%` }]}>
                         { percentual >= 25 ? <Text style={styles.percent}>{percentual}%</Text> : null }
                     </View> :
-                    <View style={[styles.leftBar, { width: `50%` }]}>
+                    <View style={[styles.leftBar, { width: `0%` }]}>
                         { percentual >= 25 ? <Text style={styles.percent}>{percentual}%</Text> : null }
                     </View>}
                     { percentual < 25 ? <Text style={styles.percentInvert}>{percentual}%</Text> : null }
