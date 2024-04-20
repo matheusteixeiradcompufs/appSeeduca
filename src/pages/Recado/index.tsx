@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons'
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -29,15 +29,10 @@ type AgendaRecadosProps = {
 
 type RecadoRouteProps = RouteProp<RouteDetailParams, 'Recado'>;
 
-export default function Recado(){
-    
-    // const [loading, setLoading] = useState(true);
-    
+export default function Recado(){    
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<RecadoRouteProps>();
-
-    // const [agenda, setAgenda] = useState<AgendaRecadosProps | undefined>();
 
     const [texto, setTexto] = useState('');
 
@@ -47,32 +42,6 @@ export default function Recado(){
 
 
     useEffect(() => {
-        // const loadAgenda = async () => {    
-        //     setLoading(true);
-        //     try{
-        //         const response = await api.get(`/pessoas/aluno/boletim/agenda/api/v1/${route.params?.id}`);
-                
-        //         const {
-        //             id,
-        //             ano,
-        //             objetos_recados,
-        //         } = await response.data;
-
-        //         setAgenda({
-        //             id: id,
-        //             ano: ano,
-        //             objetos_recados: objetos_recados,
-        //         });
-
-        //         setMensagens(objetos_recados); 
-
-        //         setLoading(false);
-        //     }catch(err){
-        //         console.log(err);
-        //         setLoading(false);
-        //     }
-        // };
-
         const loadDataInterval = setInterval( async () => {
             try{
                 const response = await api.get(`/pessoas/aluno/boletim/agenda/api/v1/${route.params?.agendaRecados?.id}`);
@@ -86,10 +55,7 @@ export default function Recado(){
                 console.log(err);
             }
         }, 1000);
-
-        // loadAgenda();
       
-          // Cleanup function to clear the interval when component is unmounted
         return () => clearInterval(loadDataInterval);
     }, []);
 
@@ -111,21 +77,6 @@ export default function Recado(){
             console.log(err);
         }
     }
-
-    // if(loading){
-    //     return(
-    //         <View
-    //             style={{
-    //                 flex: 1,
-    //                 backgroundColor: '#d9d9d9',
-    //                 justifyContent: 'center',
-    //                 alignItems: 'center',
-    //             }}
-    //         >
-    //             <ActivityIndicator size={60} color='#02489a'/>
-    //         </View>
-    //     )
-    // }
 
     return(
         <View style={styles.container}>

@@ -12,7 +12,7 @@ const ITEM_WIDTH = SLIDER_WIDTH * 0.85;
 
 type RouteDetailParams = {
     Historico: {
-        id: number | string;
+        aluno: AlunoProps | undefined;
     }
 }
 
@@ -21,76 +21,265 @@ type DisciplinaProps = {
     nome: string;
 }
 
-type MediaProps = {
+type TelefoneProps = {
     id: number | string;
-    tipo: string;
-    valor: number;
+    numero: string;
+    escola: number | string;
+}
+
+type EmailProps = {
+    id: number | string;
+    endereco: string;
+    escola: number | string;
+}
+
+type ItemProps = {
+    id: number | string;
+    nome: string;
+    descricao: string;
+}
+
+type CardapioProps = {
+    id: number | string;
+    data: Date | string;
+    turno: string;
+    itens: number[];
+    escola: number | string;
+    objetos_itens: ItemProps[];
+}
+
+type MuralProps = {
+    id: number | string;
+    ano: number;
+    escola: number | string;
+    objetos_avisos: AvisoProps[];
+}
+
+type MinhaEscolaProps = {
+    id: number | string;
+    cnpj: string;
+    nome: string;
+    endereco: string;
+    num_salas: number | string;
+    descricao: string;
+    criado_em: Date | string;
+    atualizado_em: Date | string;
+    imagem: string; 
+    objetos_telefones: TelefoneProps[];
+    objetos_emails: EmailProps[];
+    objetos_cardapios: CardapioProps[];
+    objetos_murais: MuralProps[];
+}
+
+type SalaProps = {
+    id: number | string;
+    numero: number;
+    quantidade_alunos: number;
+    escola: number | string;
+    objeto_escola: MinhaEscolaProps;
+}
+
+type AvaliacaoProps = {
+    id: number | string;
+    nome: string;
+    nota: number;
+    confirmar: boolean;
+    aluno: number | string;
+    disciplina: number | string;
+    boletim: number | string;
     objeto_disciplina: DisciplinaProps;
+}
+
+type TransporteProps = {
+    id: number | string;
+    placa: string;
+    ano: number;
+    tipo: string;
+    nomeMotorista: string;
+    nomeAuxiliar: string;
+    itinerario: string;
+    alunos: number[] | string[];
+    objetos_telefones: TelefoneProps[];
+}
+
+type TarefaProps = {
+    id: number | string;
+    nome: string;
+    descricao: string;
+    tipo: boolean;
+    cadastrada_em: Date | string;
+    entrega: string;
+    diaAgenda: number | string;
+}
+
+type AvisoProps = {
+    id: number | string;
+    titulo: string;
+    texto: string;
+    publicado_em: Date | string;
+    diaAgenda: number | string;
+}
+
+type DiaProps = {
+    id: number | string;
+    data: Date | string;
+    util: boolean;
+    disciplinas: number[] | string[];
+    agenda: number | string;
+    objetos_disciplinas: DisciplinaProps[];
+    objetos_avisos: AvisoProps[];
+    objetos_tarefas: TarefaProps[];
+}
+
+type AgendaProps = {
+    id: number | string;
+    turma: number | string;
+    objetos_dias: DiaProps[];
 }
 
 type TurmaProps = {
     id: number | string;
     nome: string;
-    ano: number | string;
+    ano: number;
+    turno: string;
+    sala: number | string;
+    disciplinas: number[];
+    objeto_agenda: AgendaProps;
+    objetos_disciplinas: DisciplinaProps[];
+    objeto_sala: SalaProps;
+}
+
+type RecadoProps = {
+    id: number | string;
+    texto: string;
+    eh_aluno: boolean;
+    publicado_em: Date | string;
+    pessoa: number | string;
+    agenda: number | string;
+}
+
+type AgendaRecadosProps = {
+    id: number | string;
+    boletim: number | string;
+    objetos_recados: RecadoProps[];
+}
+
+type DiaLetivoProps = {
+    id: number | string;
+    data: Date | string;
+    presenca: boolean;
+    frequencia: number | string;
+}
+
+type FrequenciaProps = {
+    id: number | string;
+    percentual: number;
+    boletim: number | string;
+    objetos_diasletivos: DiaLetivoProps[];
+}
+
+type MediaProps = {
+    id: number | string;
+    tipo: string;
+    valor: number;
+    disciplina: number | string;
+    boletim: number | string;
+    objeto_disciplina: DisciplinaProps;
+}
+
+type SituacaoProps = {
+    id: number | string;
+    situacao: string;
+    finalizar: boolean;
+    disciplina: number | string;
+    boletim: number | string;
+    objeto_disciplina: DisciplinaProps;
 }
 
 type BoletimProps = {
     id: number | string;
+    aluno: number | string;
     status: string;
     encerrar: boolean;
+    qr_code: string;
+    turma: number | string;
     objeto_turma: TurmaProps;
+    objeto_frequencia: FrequenciaProps;
+    objetos_avaliacoes: AvaliacaoProps[];
     objetos_medias: MediaProps[];
-
+    objetos_situacoes: SituacaoProps[];
+    objeto_agenda: AgendaRecadosProps;
 }
 
 type UserProps = {
     id: number | string;
+    username: string;
     first_name: string;
+    last_name: string;
+    email: string;
+}
+
+type ResponsavelProps = {
+    id: number | string;
+    cpf: string;
+    nome: string;
+    observacao: string;
+    aluno: number | string;
 }
 
 type AlunoProps = {
     id: number | string;
+    matricula: string;
+    cpf: string;
+    data_nascimento: string;
+    endereco: string;
+    eh_pcd: boolean;
+    retrato: string;
     objeto_usuario: UserProps;
+    objetos_telefones: TelefoneProps[];
+    objetos_emails: EmailProps[];
+    objetos_responsaveis: ResponsavelProps[];
     objetos_boletins: BoletimProps[];
+    objetos_transportes: TransporteProps[];
 }
 
 type HistoricoRouteProps = RouteProp<RouteDetailParams, 'Historico'>;
 
 export default function Historico(){
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
 
-    const [aluno, setAluno] = useState<AlunoProps>();
+    // const [aluno, setAluno] = useState<AlunoProps>();
 
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
 
     const route = useRoute<HistoricoRouteProps>();
 
-    useEffect(() => {
-        const loadBoletim = async () => {    
-            setLoading(true);
-            try{
-                const response = await api.get(`/pessoas/aluno/api/v1/${route.params?.id}`);
+    // useEffect(() => {
+    //     const loadBoletim = async () => {    
+    //         setLoading(true);
+    //         try{
+    //             const response = await api.get(`/pessoas/aluno/api/v1/${route.params?.id}`);
                 
-                const {
-                    id,
-                    objeto_usuario,
-                    objetos_boletins
-                  } = await response.data;
+    //             const {
+    //                 id,
+    //                 objeto_usuario,
+    //                 objetos_boletins
+    //               } = await response.data;
   
-                setAluno({
-                    id: id,
-                    objeto_usuario: objeto_usuario,
-                    objetos_boletins: objetos_boletins
-                });
+    //             setAluno({
+    //                 id: id,
+    //                 objeto_usuario: objeto_usuario,
+    //                 objetos_boletins: objetos_boletins
+    //             });
   
-                setLoading(false);
-            }catch(err){
-                console.log(err);
-                setLoading(false);
-            }
-        };
-        loadBoletim();
-      }, []);
+    //             setLoading(false);
+    //         }catch(err){
+    //             console.log(err);
+    //             setLoading(false);
+    //         }
+    //     };
+    //     loadBoletim();
+    //   }, []);
 
     function getSituacao(codigo: string){
         let situacao = '';
@@ -107,20 +296,20 @@ export default function Historico(){
         return situacao;
     }
 
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
-    }
+    // if(loading){
+    //     return(
+    //         <View
+    //             style={{
+    //                 flex: 1,
+    //                 backgroundColor: '#d9d9d9',
+    //                 justifyContent: 'center',
+    //                 alignItems: 'center',
+    //             }}
+    //         >
+    //             <ActivityIndicator size={60} color='#02489a'/>
+    //         </View>
+    //     )
+    // }
 
     return(
         <View style={styles.container}>
@@ -152,11 +341,11 @@ export default function Historico(){
 
                 <View style={styles.content}>
                     <View style={{width: '100%', backgroundColor: '#d9d9d9', borderRadius: 8, alignItems: 'center', marginBottom: 15}}>
-                        <Text style={{fontSize: 24, color: '#02489a', fontWeight: 'bold', padding: 15}}>Histótico de {aluno?.objeto_usuario.first_name}</Text>
+                        <Text style={{fontSize: 24, color: '#02489a', fontWeight: 'bold', padding: 15}}>Histótico de {route.params?.aluno?.objeto_usuario.first_name}</Text>
                     </View>
 
                     <Carousel style={{justifyContent: 'center', alignItems: 'center'}}
-                        data={aluno?.objetos_boletins || []}
+                        data={route.params?.aluno?.objetos_boletins || []}
                         renderItem={({ item, index }) => (
                             <View key={index} style={{width: '100%', backgroundColor: '#d9d9d9', borderRadius: 8, alignItems: 'center', padding: 15}}>
                                 <View style={{flexDirection: 'row', width: '100%', borderWidth: 1, borderColor: '#02489a'}}>
@@ -176,7 +365,7 @@ export default function Historico(){
                                     </View>
                                 </View>
                                 <View style={{width: '100%', borderWidth: 1, borderColor: '#02489a'}}>
-                                    {aluno?.objetos_boletins[index].objetos_medias.map((item, index) => (
+                                    {route.params?.aluno?.objetos_boletins[index].objetos_medias.map((item, index) => (
                                         item.tipo === 'MG' ? 
                                         <View key={index} style={{flexDirection: 'row', width: '100%'}}>
                                             <View style={{width: '80%', borderWidth: 1, paddingHorizontal: 10, borderColor: '#02489a'}}>

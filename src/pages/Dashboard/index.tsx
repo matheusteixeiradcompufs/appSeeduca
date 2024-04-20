@@ -381,7 +381,7 @@ export default function Dashboard(){
     }
 
     async function openHistorico() {
-        navigation.navigate('Historico', {id: 1});
+        navigation.navigate('Historico', { aluno: aluno });
     }
 
     if(loading){

@@ -273,7 +273,7 @@ export type StackAppParamsList = {
         agendaRecados: AgendaRecadosProps | undefined;
     };
     Historico: {
-        id: number | string;
+        aluno: AlunoProps | undefined;
     };
 }
 
