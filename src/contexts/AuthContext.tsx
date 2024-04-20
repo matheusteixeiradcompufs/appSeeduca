@@ -1,11 +1,13 @@
 import React, { ReactNode, createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios, { AxiosError } from "axios";
 
 type AuthContextData = {
     user: UserProps;
     isAuthenticated: boolean;
     login: (credentials: LoginProps) => Promise<void>;
+    refreshToken: () => Promise<void>;
     loadingAuth: boolean;
     loading: boolean;
     logout: () => Promise<void>;
@@ -27,7 +29,7 @@ type LoginProps = {
     password: string;
 }
 
-const API_BASE_URL = 'http://192.168.0.110/api';
+// const API_BASE_URL = 'http://192.168.0.113/api';
 
 export const AuthContext = createContext({} as AuthContextData);
 
@@ -46,14 +48,13 @@ export function AuthProvider({children}: AuthProviderProps){
 
     useEffect(() => {
         async function checkTokensInStorage(){
-
             const storedUsername = await AsyncStorage.getItem('@appseeduca:username');
             const storedFirstName = await AsyncStorage.getItem('@appseeduca:firstName');
             const storedAccessToken = await AsyncStorage.getItem('@appseeduca:accessToken');
             const storedRefreshToken = await AsyncStorage.getItem('@appseeduca:refreshToken');
         
             if (storedAccessToken && storedRefreshToken) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${storedAccessToken}`
+                api.defaults.headers['Authorization'] = `Bearer ${storedAccessToken}`
 
                 setUser({
                     username: storedUsername || '',
@@ -64,47 +65,36 @@ export function AuthProvider({children}: AuthProviderProps){
             }
 
             setLoading(false);
-            
         };
-
-        // Verifica se existem tokens salvos no AsyncStorage ao iniciar o componente
         checkTokensInStorage();
     }, []);
 
     async function obterTokens({ username, password } : LoginProps) {
         setLoadingAuth(true);
-
         try {
-            const response = await fetch(`${API_BASE_URL}/token/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    'username': username,
-                    'password': password,
-                }),
+            const response = await api.post('/api/token/', {
+                username,
+                password,
             });
-    
-            if (!response.ok) {
-                throw new Error('Falha na autenticação');
-            }
-    
-            const { access, refresh } = await response.json();
+
+            const { access, refresh } = response.data;
 
             // Salva os tokens no AsyncStorage
             await AsyncStorage.setItem('@appseeduca:accessToken', access);
             await AsyncStorage.setItem('@appseeduca:refreshToken', refresh);
 
-            api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+            api.defaults.headers['Authorization'] = `Bearer ${access}`;
 
-            user.access = access;
-            user.refresh = refresh;
+            setUser(prevUser => ({
+                ...prevUser,
+                access,
+                refresh,
+            }));
         
             setLoadingAuth(false);
 
         } catch (error) {
-            console.error('Erro durante o login:', error);
+            console.log('Erro durante o login:', error);
             alert('Erro durante o login. Verifique suas credenciais.');
             
             setLoadingAuth(false);
@@ -112,53 +102,51 @@ export function AuthProvider({children}: AuthProviderProps){
     };
 
     async function refreshToken(){
-        setLoadingAuth(true);
-        
+        setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    refresh: user.refresh,
-                }),
+            const response = await api.post('/token/refresh/', {
+                refresh: user.refresh,
             });
     
-            if (!response.ok) {
-                throw new Error('Falha ao atualizar o token');
-            }
-    
-            const data = await response.json();
-            const newAccessToken = data.access;
-    
-            user.access = newAccessToken;
+            const { access } = await response.data;
+            const newAccessToken = access;
+            
+             // Atualiza o token de acesso
+            setUser(prevUser => ({
+                ...prevUser,
+                access: newAccessToken
+            }));
+
+            // Atualiza o token de acesso nos cabeçalhos da API
+            api.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`;
     
             // Salva o novo token de acesso no AsyncStorage
             await AsyncStorage.setItem('@appseeduca:accessToken', newAccessToken);
 
-            setLoadingAuth(false);
+            setLoading(false);
         } catch (error) {
             console.error('Erro ao atualizar o token:', error);
     
             // Se houver um erro 401, significa que tanto o token de acesso quanto o token de refresh estão expirados
             if (error) {
                 alert('Sua sessão expirou. Faça login novamente.');
+                logout();
             }
 
-            setLoadingAuth(false);
+            setLoading(false);
         }
     };
 
     async function logout() {
         setLoadingAuth(true);
-
         try {
             // Limpa os tokens no estado e no AsyncStorage
-            user.username = '';
-            user.first_name = '';
-            user.access = '';
-            user.refresh = '';
+            setUser({
+                username: '',
+                first_name: '',
+                access: '',
+                refresh: '',
+            });
 
             await AsyncStorage.removeItem('@appseeduca:username');
             await AsyncStorage.removeItem('@appseeduca:firstName');
@@ -174,8 +162,11 @@ export function AuthProvider({children}: AuthProviderProps){
     };
 
     async function setUserAsync(username: string, first_name: string) {
-        user.username = username;
-        user.first_name = first_name;
+        setUser(prevUser => ({
+            ...prevUser,
+            username,
+            first_name,
+        }));
     }
 
 
@@ -185,7 +176,7 @@ export function AuthProvider({children}: AuthProviderProps){
         await obterTokens({ username, password });
 
         try{
-            const response = await api.post('/pessoas/me/', {
+            const response = await api.post('/pessoas/me/aluno/', {
                 username
             });
 
@@ -202,7 +193,6 @@ export function AuthProvider({children}: AuthProviderProps){
             console.log(`Usuário ${user.first_name} logado`);
             
             setLoading(false);
-
         }catch(error){
             console.log('Usuário não pode logar no App!');
             alert('Usuário não pode logar no App!');
@@ -217,6 +207,7 @@ export function AuthProvider({children}: AuthProviderProps){
             user, 
             isAuthenticated, 
             login, 
+            refreshToken,
             loadingAuth, 
             loading, 
             logout 

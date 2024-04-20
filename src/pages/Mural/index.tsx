@@ -1,15 +1,15 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { StackAppParamsList } from "../../routes/app.routes";
-import { api } from "../../services/api";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { ListItem } from "@rneui/themed";
+import { format } from "date-fns";
 
 type RouteDetailParams = {
     Mural: {
-        id: number | string;
+        murais: MuralProps[];
     }
 }
 
@@ -26,70 +26,19 @@ type MuralProps = {
     objetos_avisos: AvisoProps[];
 }
 
-type EscolaProps = {
-    id: number | string;
-    objetos_murais: MuralProps[]; 
-}
-
 type MuralRouteProps = RouteProp<RouteDetailParams, 'Mural'>;
 
-export default function Mural(){
-
-    const [loading, setLoading] = useState(true);
-    
+export default function Mural(){    
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<MuralRouteProps>();
 
-    const [escola, setEscola] = useState<EscolaProps | undefined>();
-
     const [avisoExpanded, setAvisoExpanded] = useState<boolean[]>([false]);
 
-    useEffect(() => {
-        const loadEscola = async () => {    
-            setLoading(true);
-            try{
-                const response = await api.get(`/escolas/api/v1/${route.params?.id}`);
-                
-                const {
-                    id,
-                    objetos_murais
-                } = await response.data;
-
-                setEscola({
-                    id: id,
-                    objetos_murais: objetos_murais
-                });
-
-                setLoading(false);
-            }catch(err){
-                console.log(err);
-                setLoading(false);
-            }
-        };
-
-        loadEscola();
-    }, []);
-
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
-    }
-
     const data = new Date();
-    const temMural = escola?.objetos_murais.some(objeto => objeto.ano === data.getFullYear());
+    const temMural = route.params?.murais?.some(objeto => objeto.ano === data.getFullYear());
     let mural;
-    temMural ? mural = escola?.objetos_murais.filter(objeto => objeto.ano === data.getFullYear()) : alert(`Ainda não existe mural em ${data.getFullYear()}`) ;
+    temMural ? mural = route.params?.murais?.filter(objeto => objeto.ano === data.getFullYear()) : alert(`Ainda não existe mural em ${data.getFullYear()}`) ;
 
     return(
         <View style={styles.container}>
@@ -126,7 +75,7 @@ export default function Mural(){
                             content={
                                 <>
                                     <ListItem.Content>
-                                        <ListItem.Title style={styles.avisoTitle}>{aviso.publicado_em.toString()}</ListItem.Title>
+                                        <ListItem.Title style={styles.avisoTitle}>{format(aviso.publicado_em.toString(), 'dd/MM/yyyy - hh:mm')}</ListItem.Title>
                                     </ListItem.Content>
                                 </>
                             }
@@ -230,6 +179,7 @@ const styles = StyleSheet.create({
     itemTitle: {
         color: '#02489a',
         fontWeight: 'bold',
+        marginBottom: 10,
     },
     itemContent: {
         color: '#02489a',

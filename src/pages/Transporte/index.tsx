@@ -8,7 +8,7 @@ import { api } from "../../services/api";
 
 type RouteDetailParams = {
     Transporte: {
-        id: number | string;
+        transporte: TransporteProps | undefined;
     }
 }
 
@@ -32,68 +32,19 @@ type TransporteProps = {
 type TransporteRouteProps = RouteProp<RouteDetailParams, 'Transporte'>;
 
 export default function Transporte(){
-
-    
-    const [loading, setLoading] = useState(true);
-    
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<TransporteRouteProps>();
 
-    const [transporte, setTransporte] = useState<TransporteProps | undefined>();
-
-    useEffect(() => {
-        const loadTransporte = async () => {    
-            setLoading(true);
-            try{
-                const response = await api.get(`/pessoas/aluno/transporte/api/v1/${route.params?.id}`);
-                
-                const {
-                    id,
-                    placa,
-                    ano,
-                    tipo,
-                    nomeMotorista,
-                    nomeAuxiliar,
-                    itinerario,
-                    objetos_telefones,
-                } = await response.data;
-
-                setTransporte({
-                    id: id,
-                    placa: placa,
-                    ano: ano,
-                    tipo: tipo,
-                    nomeMotorista: nomeMotorista,
-                    nomeAuxiliar: nomeAuxiliar,
-                    itinerario: itinerario, 
-                    objetos_telefones: objetos_telefones,
-                });
-
-                setLoading(false);
-            }catch(err){
-                console.log(err);
-                setLoading(false);
-            }
-        };
-
-        loadTransporte();
-    }, []);
-
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
-    }
+    const formatarTipo = (tipo: string | undefined) => {
+        switch (tipo) {
+            case 'C': return 'Carro';
+            case 'O': return 'ônibus';
+            case 'V': return 'Van';
+            case 'X': return 'Outros';
+            default: return 'Outros';
+        }
+    };
 
     return(
         <View style={styles.container}>
@@ -125,24 +76,24 @@ export default function Transporte(){
 
                 <View style={styles.content}>
                     <Text style={styles.topic}>Tipo:</Text>
-                    <Text style={styles.info}>{ transporte?.tipo }</Text>
+                    <Text style={styles.info}>{ formatarTipo(route.params?.transporte?.tipo) }</Text>
 
                     <Text style={styles.topic}>Placa:</Text>
-                    <Text style={styles.info}>{ transporte?.placa }</Text>
+                    <Text style={styles.info}>{ route.params?.transporte?.placa }</Text>
                     
                     <Text style={styles.topic}>Motorista:</Text>
-                    <Text style={styles.info}>{ transporte?.nomeMotorista }</Text>
+                    <Text style={styles.info}>{ route.params?.transporte?.nomeMotorista }</Text>
                     
                     <Text style={styles.topic}>Auxiliar:</Text>
-                    <Text style={styles.info}>{ transporte?.nomeAuxiliar }</Text>
+                    <Text style={styles.info}>{ route.params?.transporte?.nomeAuxiliar }</Text>
                     
                     <Text style={styles.topic}>Telefons(s):</Text>
-                    {transporte?.objetos_telefones.map((item, index) => (
+                    {route.params?.transporte?.objetos_telefones.map((item, index) => (
                         <Text style={styles.info} key={index}>{item.numero}</Text>
                     ))}
                     
                     <Text style={styles.topic}>Itinerário:</Text>
-                    <Text style={styles.info}>{ transporte?.itinerario }</Text>
+                    <Text style={styles.info}>{ route.params?.transporte?.itinerario }</Text>
                     
                     
                 </View>

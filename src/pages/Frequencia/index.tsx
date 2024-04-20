@@ -1,15 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useContext } from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons'
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
 import { AuthContext } from "../../contexts/AuthContext";
-import { api } from "../../services/api";
 
 type RouteDetailParams = {
     Frequencia: {
-        id: number | string;
+        frequencia: FrequenciaProps;
     }
 }
 
@@ -32,64 +31,13 @@ type FrequenciaRouteProps = RouteProp<RouteDetailParams, 'Frequencia'>;
 
 export default function Frequencia(){
     const { user } = useContext(AuthContext);
-
-    const [loading, setLoading] = useState(false);
-
-    const [frequencia, setFrequencia] = useState<FrequenciaProps>();
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<FrequenciaRouteProps>();
 
-    useEffect(() => {
-        const loadFrequencia = async () => {    
-            setLoading(true);
-            try{
-                const response = await api.get(`/pessoas/aluno/frequencia/api/v1/${route.params?.id}`);
-                
-                const {
-                    id,
-                    ano,
-                    percentual,
-                    aluno,
-                    objetos_diasletivos
-                } = await response.data;
-
-                setFrequencia({
-                    id: id,
-                    ano: ano,
-                    percentual: percentual,
-                    aluno: aluno,
-                    objetos_diasletivos: objetos_diasletivos,
-                });
-
-                setLoading(false);
-            }catch(err){
-                console.log(err);
-                setLoading(false);
-            }
-        };
-
-        loadFrequencia();
-    }, []);
-
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
-    }
-
-    const percentual = frequencia?.percentual as number;
-    const presencas = frequencia?.objetos_diasletivos.filter(item => item.presenca === true);
+    const percentual = route.params?.frequencia?.percentual as number;
+    const presencas = route.params?.frequencia?.objetos_diasletivos.filter(item => item.presenca === true);
     
     return(
         <View style={styles.container}>
@@ -121,7 +69,7 @@ export default function Frequencia(){
 
                 <View style={styles.info}>
                     <Text style={styles.nome}>{user.first_name}</Text>
-                    <Text style={styles.textInfo}>Você possui { presencas?.length } presenças em { frequencia?.objetos_diasletivos.length } dias de aula</Text>
+                    <Text style={styles.textInfo}>Você possui { presencas?.length } presenças em { route.params?.frequencia?.objetos_diasletivos.length } dias de aula</Text>
                 </View>
 
                 <View style={styles.contentBar}>

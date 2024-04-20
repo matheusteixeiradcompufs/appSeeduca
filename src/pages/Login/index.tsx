@@ -1,24 +1,19 @@
 import React, { useContext, useState } from "react";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../../contexts/AuthContext";
-// import { } from @react-native-async-storage/async-storage;
 
 export default function Login(){
-
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
     const { login } = useContext(AuthContext);
           
-      // Chame a função para iniciar a requisição
+    // Chame a função para iniciar a requisição
     async function handleLogin(){
-
         if(username === '' || password === ''){
             return;
         }
-
         await login({ username, password });
-
     }
 
     return(
@@ -27,7 +22,6 @@ export default function Login(){
                 style={styles.logo}
                 source={require('../../assets/logo.png')} 
             />
-
             <View style={styles.inputContainer}>
                 <TextInput 
                     style={styles.input}
@@ -36,7 +30,6 @@ export default function Login(){
                     value={username}
                     onChangeText={setUsername}
                 />
-
                 <TextInput 
                     style={styles.input}
                     placeholder="Digite sua senha..."
@@ -45,11 +38,9 @@ export default function Login(){
                     value={password}
                     onChangeText={setPassword}
                 />
-
                 <TouchableOpacity style={styles.button} onPress={handleLogin}>
                     <Text style={styles.textButton} >Acessar</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.link}>
                     <Text style={styles.textLink}>Esqueceu a senha clique aqui!</Text>
                 </TouchableOpacity>

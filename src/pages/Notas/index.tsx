@@ -12,8 +12,31 @@ const ITEM_WIDTH = SLIDER_WIDTH * 0.8;
 
 type RouteDetailParams = {
     Boletim: {
-        id: number | string;
+        boletim: BoletimProps | undefined;
     }
+}
+
+type DisciplinaProps = {
+    id: number | string;
+    nome: string;
+}
+
+type MediaProps = {
+    id: number | string;
+    tipo: string;
+    valor: number;
+    disciplina: number | string;
+    boletim: number | string;
+    objeto_disciplina: DisciplinaProps;
+}
+
+type SituacaoProps = {
+    id: number | string;
+    situacao: string;
+    finalizar: boolean;
+    disciplina: number | string;
+    boletim: number | string;
+    objeto_disciplina: DisciplinaProps;
 }
 
 type AvaliacaoProps = {
@@ -24,6 +47,7 @@ type AvaliacaoProps = {
     disciplina: number | string;
     boletim: number | string;
     turma: number | string;
+    objeto_disciplina: DisciplinaProps;
 }
 
 type BoletimProps = {
@@ -31,115 +55,132 @@ type BoletimProps = {
     ano: number | string;
     aluno: number | string;
     objetos_avaliacoes: AvaliacaoProps[];
+    objetos_medias: MediaProps[];
+    objetos_situacoes: SituacaoProps[];
 }
 
 type BoletimRouteProps = RouteProp<RouteDetailParams, 'Boletim'>;
 
 export default function Notas(){
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<BoletimRouteProps>();
 
-    const [boletim, setBoletim] = useState<BoletimProps | undefined>();
+    // const [boletim, setBoletim] = useState<BoletimProps | undefined>();
 
-    function getDisciplina(index: number){
-        let disciplina = '';
+    // function getDisciplina(index: number){
+    //     let disciplina = '';
 
-        switch(index){
-          case 1 : disciplina = 'Artes'; break;
-          case 2 : disciplina = 'Ciências'; break;
-          case 3 : disciplina = 'Geografia'; break;
-          case 4 : disciplina = 'História'; break;
-          case 5 : disciplina = 'Matemática'; break;
-          case 6 : disciplina = 'Português'; break;
-        }
-      return disciplina;
-    }
+    //     switch(index){
+    //       case 1 : disciplina = 'Artes'; break;
+    //       case 2 : disciplina = 'Ciências'; break;
+    //       case 3 : disciplina = 'Geografia'; break;
+    //       case 4 : disciplina = 'História'; break;
+    //       case 5 : disciplina = 'Matemática'; break;
+    //       case 6 : disciplina = 'Português'; break;
+    //     }
+    //   return disciplina;
+    // }
 
-    function getAvaliacao(codigo: string){
-        let avaliacao = '';
+    function getRotulo(item: AvaliacaoProps | MediaProps){
+
+        const isAvalaiacaoProps = (item as AvaliacaoProps).nome !== undefined;
+
+        const codigo = isAvalaiacaoProps ? (item as AvaliacaoProps).nome : (item as MediaProps).tipo;
+
+        let rotulo = '';
 
         switch(codigo){
-          case 'A1' : avaliacao = 'Unidade 1'; break;
-          case 'A2' : avaliacao = 'Unidade 2'; break;
-          case 'R1' : avaliacao = 'Recuperação 1'; break;
-          case 'A3' : avaliacao = 'Unidade 3'; break;
-          case 'A4' : avaliacao = 'Unidade 4'; break;
-          case 'R2' : avaliacao = 'Recuperação 2'; break;
+          case 'A1' : rotulo = 'Unidade 1'; break;
+          case 'A2' : rotulo = 'Unidade 2'; break;
+          case 'R1' : rotulo = 'Recuperação 1'; break;
+          case 'M1' : rotulo = 'Média 1'; break;
+          case 'A3' : rotulo = 'Unidade 3'; break;
+          case 'A4' : rotulo = 'Unidade 4'; break;
+          case 'R2' : rotulo = 'Recuperação 2'; break;
+          case 'M2' : rotulo = 'Média 2'; break;
+          case 'MG' : rotulo = 'Média Geral'; break;
         }
-      return avaliacao;
+      return rotulo;
     }
 
-    function formatarNotas(data: AvaliacaoProps[] | undefined){
-        
-        let unidade1 = data?.filter(avaliacao => avaliacao.nome === 'A1');
-        let unidade2 = data?.filter(avaliacao => avaliacao.nome === 'A2');
-        let recuperacao1 = data?.filter(avaliacao => avaliacao.nome === 'R1');
-        let unidade3 = data?.filter(avaliacao => avaliacao.nome === 'A3');
-        let unidade4 = data?.filter(avaliacao => avaliacao.nome === 'A4');
-        let recuperacao2 = data?.filter(avaliacao => avaliacao.nome === 'R2');
+    function formatarNotas(boletim: BoletimProps | undefined){
+        let unidade1 = boletim?.objetos_avaliacoes.filter(avaliacao => avaliacao.nome === 'A1');
+        let unidade2 = boletim?.objetos_avaliacoes.filter(avaliacao => avaliacao.nome === 'A2');
+        let recuperacao1 = boletim?.objetos_avaliacoes.filter(avaliacao => avaliacao.nome === 'R1');
+        let media1 = boletim?.objetos_medias.filter(media => media.tipo === 'M1');
+        let unidade3 = boletim?.objetos_avaliacoes.filter(avaliacao => avaliacao.nome === 'A3');
+        let unidade4 = boletim?.objetos_avaliacoes.filter(avaliacao => avaliacao.nome === 'A4');
+        let recuperacao2 = boletim?.objetos_avaliacoes.filter(avaliacao => avaliacao.nome === 'R2');
+        let media2 = boletim?.objetos_medias.filter(media => media.tipo === 'M2');
+        let mediaGeral = boletim?.objetos_medias.filter(media => media.tipo === 'MG');
 
         let array = [
           unidade1,
           unidade2,
           recuperacao1,
+          media1,
           unidade3,
           unidade4,
-          recuperacao2
+          recuperacao2,
+          media2,
+          mediaGeral
         ]
 
         return array;
+    }
 
-        
+    function isAvaliacao(avaliacao: AvaliacaoProps | MediaProps): avaliacao is AvaliacaoProps {
+        return (avaliacao as AvaliacaoProps).nota !== undefined;
     }
     
-    useEffect(() => {
-      const loadBoletim = async () => {    
-          setLoading(true);
-          try{
-              const response = await api.get(`/pessoas/aluno/boletim/api/v1/${route.params?.id}`);
+    // useEffect(() => {
+    //   const loadBoletim = async () => {    
+    //       setLoading(true);
+    //       try{
+    //           const response = await api.get(`/pessoas/aluno/boletim/api/v1/${route.params?.id}`);
               
-              const {
-                  id,
-                  ano,
-                  aluno,
-                  objetos_avaliacoes
-                } = await response.data;
+    //           const {
+    //               id,
+    //               ano,
+    //               aluno,
+    //               objetos_avaliacoes
+    //             } = await response.data;
 
-              setBoletim({
-                  id: id,
-                  ano: ano,
-                  aluno: aluno,
-                  objetos_avaliacoes: objetos_avaliacoes
-              });
+    //           setBoletim({
+    //               id: id,
+    //               ano: ano,
+    //               aluno: aluno,
+    //               objetos_avaliacoes: objetos_avaliacoes
+    //           });
 
-              setLoading(false);
-          }catch(err){
-              console.log(err);
-              setLoading(false);
-          }
-      };
-      loadBoletim();
-    }, []);
+    //           setLoading(false);
+    //       }catch(err){
+    //           console.log(err);
+    //           setLoading(false);
+    //       }
+    //   };
+    //   loadBoletim();
+    // }, []);
 
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
-    }
+    // if(loading){
+    //     return(
+    //         <View
+    //             style={{
+    //                 flex: 1,
+    //                 backgroundColor: '#d9d9d9',
+    //                 justifyContent: 'center',
+    //                 alignItems: 'center',
+    //             }}
+    //         >
+    //             <ActivityIndicator size={60} color='#02489a'/>
+    //         </View>
+    //     )
+    // }
 
-    const unidades = formatarNotas(boletim?.objetos_avaliacoes);
+    const unidades = formatarNotas(route.params?.boletim);
 
     return (
         <View style={styles.container}>
@@ -175,13 +216,15 @@ export default function Notas(){
                         renderItem={({ item, index }) => (
                             <View key={index} style={styles.notasContainer}>
                                 <View style={styles.unidadeContainer}>
-                                    <Text style={styles.unidade}>{item && item.length > 0 ? getAvaliacao(item[0].nome) : 'Avaliação Indefinida'}</Text>
+                                    <Text style={styles.unidade}>{item && item.length > 0 ? getRotulo(item[0]) : 'Avaliação Indefinida'}</Text>
                                 </View>
                                 {item && item.map((avaliacao, index) => (
                                     <View key={index} style={styles.notaContainer}>
-                                        <Text style={styles.disciplina}>{getDisciplina(avaliacao.disciplina as number)}:</Text>
+                                        <Text style={styles.disciplina}>{avaliacao.objeto_disciplina.nome}:</Text>
                                         <View style={styles.boxNota}>
-                                            <Text style={styles.nota}>{avaliacao.nota}</Text>
+                                            <Text style={styles.nota}>
+                                                {isAvaliacao(avaliacao) ? (avaliacao as AvaliacaoProps).nota : (avaliacao as MediaProps).valor}
+                                            </Text>
                                         </View>
                                     </View>
                                 ))}

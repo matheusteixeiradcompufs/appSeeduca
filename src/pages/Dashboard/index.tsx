@@ -7,35 +7,89 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
 import { api } from "../../services/api";
 
-type SalaProps = {
+type DisciplinaProps = {
     id: number | string;
-    escola: number | string;
+    nome: string;
 }
 
 type TelefoneProps = {
     id: number | string;
     numero: string;
-    transporte: number | string;
+    escola: number | string;
+}
+
+type EmailProps = {
+    id: number | string;
+    endereco: string;
+    escola: number | string;
+}
+
+type ItemProps = {
+    id: number | string;
+    nome: string;
+    descricao: string;
+}
+
+type CardapioProps = {
+    id: number | string;
+    data: Date | string;
+    turno: string;
+    itens: number[];
+    escola: number | string;
+    objetos_itens: ItemProps[];
+}
+
+type MuralProps = {
+    id: number | string;
+    ano: number;
+    escola: number | string;
+    objetos_avisos: AvisoProps[];
+}
+
+type MinhaEscolaProps = {
+    id: number | string;
+    cnpj: string;
+    nome: string;
+    endereco: string;
+    num_salas: number | string;
+    descricao: string;
+    criado_em: Date | string;
+    atualizado_em: Date | string;
+    imagem: string; 
+    objetos_telefones: TelefoneProps[];
+    objetos_emails: EmailProps[];
+    objetos_cardapios: CardapioProps[];
+    objetos_murais: MuralProps[];
+}
+
+type SalaProps = {
+    id: number | string;
+    numero: number;
+    quantidade_alunos: number;
+    escola: number | string;
+    objeto_escola: MinhaEscolaProps;
 }
 
 type AvaliacaoProps = {
     id: number | string;
     nome: string;
     nota: number;
+    confirmar: boolean;
     aluno: number | string;
     disciplina: number | string;
     boletim: number | string;
-    turma: number | string;
+    objeto_disciplina: DisciplinaProps;
 }
 
 type TransporteProps = {
     id: number | string;
     placa: string;
-    ano: number | string;
+    ano: number;
     tipo: string;
     nomeMotorista: string;
     nomeAuxiliar: string;
-    itinerario: string; 
+    itinerario: string;
+    alunos: number[] | string[];
     objetos_telefones: TelefoneProps[];
 }
 
@@ -59,8 +113,11 @@ type AvisoProps = {
 
 type DiaProps = {
     id: number | string;
-    data: string;
+    data: Date | string;
+    util: boolean;
     disciplinas: number[] | string[];
+    agenda: number | string;
+    objetos_disciplinas: DisciplinaProps[];
     objetos_avisos: AvisoProps[];
     objetos_tarefas: TarefaProps[];
 }
@@ -73,9 +130,14 @@ type AgendaProps = {
 
 type TurmaProps = {
     id: number | string;
+    nome: string;
+    ano: number;
+    turno: string;
     sala: number | string;
-    ano: number | string;
+    disciplinas: number[];
     objeto_agenda: AgendaProps;
+    objetos_disciplinas: DisciplinaProps[];
+    objeto_sala: SalaProps;
 }
 
 type RecadoProps = {
@@ -83,69 +145,138 @@ type RecadoProps = {
     texto: string;
     eh_aluno: boolean;
     publicado_em: Date | string;
-    transporte: number | string;
+    pessoa: number | string;
+    agenda: number | string;
 }
 
 type AgendaRecadosProps = {
     id: number | string;
-    ano: number | string;
+    boletim: number | string;
     objetos_recados: RecadoProps[];
+}
+
+type DiaLetivoProps = {
+    id: number | string;
+    data: Date | string;
+    presenca: boolean;
+    frequencia: number | string;
 }
 
 type FrequenciaProps = {
     id: number | string;
+    percentual: number;
+    boletim: number | string;
+    objetos_diasletivos: DiaLetivoProps[];
+}
+
+type MediaProps = {
+    id: number | string;
+    tipo: string;
+    valor: number;
+    disciplina: number | string;
+    boletim: number | string;
+    objeto_disciplina: DisciplinaProps;
+}
+
+type SituacaoProps = {
+    id: number | string;
+    situacao: string;
+    finalizar: boolean;
+    disciplina: number | string;
+    boletim: number | string;
+    objeto_disciplina: DisciplinaProps;
 }
 
 type BoletimProps = {
     id: number | string;
+    aluno: number | string;
+    status: string;
+    encerrar: boolean;
+    qr_code: string;
+    turma: number | string;
     objeto_turma: TurmaProps;
     objeto_frequencia: FrequenciaProps;
     objetos_avaliacoes: AvaliacaoProps[];
+    objetos_medias: MediaProps[];
+    objetos_situacoes: SituacaoProps[];
+    objeto_agenda: AgendaRecadosProps;
+}
+
+type UserProps = {
+    id: number | string;
+    username: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+}
+
+type ResponsavelProps = {
+    id: number | string;
+    cpf: string;
+    nome: string;
+    observacao: string;
+    aluno: number | string;
 }
 
 type AlunoProps = {
     id: number | string;
-    objetos_transportes: TransporteProps[];
+    matricula: string;
+    cpf: string;
+    data_nascimento: string;
+    endereco: string;
+    eh_pcd: boolean;
+    retrato: string;
+    objeto_usuario: UserProps;
+    objetos_telefones: TelefoneProps[];
+    objetos_emails: EmailProps[];
+    objetos_responsaveis: ResponsavelProps[];
     objetos_boletins: BoletimProps[];
-    objetos_agendas: AgendaRecadosProps[];
+    objetos_transportes: TransporteProps[];
 }
 
 
 export default function Dashboard(){
-    const { user, loading, logout } = useContext(AuthContext);
+    const { user, refreshToken, logout } = useContext(AuthContext);
 
-    const [loadingUser, setLoadingUser] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     const [aluno, setAluno] = useState<AlunoProps>();
     const [sala, setSala] = useState<SalaProps>();
+    const [matriculado, setMatriculado] = useState<boolean | undefined>(false);
+    const [minhaEscola, setMinhaEscola] = useState<MinhaEscolaProps>();
+    const [frequencia, setFrequencia] = useState<FrequenciaProps>();
+    const [hasTransporte, setHasTransporte] = useState<boolean | undefined>(false);
+    const [transporte, setTransporte] = useState<TransporteProps>();
+    const [cardapios, setCardapios] = useState<CardapioProps[]>();
+    const [murais, setMurais] = useState<MuralProps[]>();
+    const [agenda, setAgenda] = useState<AgendaProps>();
+    const [boletim, setBoletim] = useState<BoletimProps>();
+    const [agendaRecados, setAgendaRecados] = useState<AgendaRecadosProps>();
 
     const dataAtual = new Date();
 
     useEffect(() => {
         const loadUser = async () => { 
-            setLoadingUser(true);
             try{
-                const response = await api.post('/pessoas/me/', {
+                const response = await api.post('/pessoas/me/aluno/', {
                     username: user.username
                 });
-                
-                const { 
-                    id,
-                    objetos_transportes,
-                    objetos_boletins, 
-                    objetos_agendas,
-                } = response.data;
 
-                setAluno({ 
-                    id: id, 
-                    objetos_transportes: objetos_transportes,
-                    objetos_boletins: objetos_boletins,
-                    objetos_agendas: objetos_agendas,
-                });
+                setAluno(response.data);
 
+                console.log("Status da resposta antes do catch:", response.status);
+                setLoading(false);
 
-            }catch(err){
-                console.log(err);
+            }catch(err: any){
+                console.log('Mensagem de erro loadUser: ', err)
+                // try{
+                //     await refreshToken();
+                //     await loadUser();
+                // }catch(error){
+                //     console.log('Mensagem de erro refreshToken: ', error)
+                //     logout();
+                // }
+                setLoading(false);
             }
         };
 
@@ -153,32 +284,24 @@ export default function Dashboard(){
     }, []);
 
     useEffect(() => {
-
         const loadSala = async() => {
-            setLoadingUser(true);
+            setLoading(true);
             
             const alunoMatriculado = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
+            setMatriculado(alunoMatriculado);
             const boletins = aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
-            if (alunoMatriculado) {
-                try{
-                    const response = await api.get(`/escolas/sala/api/v1/${boletins && boletins[boletins.length-1].objeto_turma.sala}/`);
-                    
-                    const { 
-                        id,
-                        escola,
-                    } = response.data;
-
-                    setSala({ 
-                        id: id, 
-                        escola: escola,
-                    });
-
-                    setLoadingUser(false);
-
-                }catch(err){
-                    console.log(err);
-                }
-            }
+            const boletim = boletins && boletins[boletins?.length-1];
+            setMinhaEscola(boletim?.objeto_turma.objeto_sala.objeto_escola);
+            setFrequencia(boletim?.objeto_frequencia);
+            setHasTransporte(aluno?.objetos_transportes.some(objeto => objeto.ano === dataAtual.getFullYear()));
+            const transportes = aluno?.objetos_transportes.filter((objeto) => (objeto.ano === dataAtual.getFullYear()));
+            setTransporte(transportes && transportes[transportes?.length-1]);
+            setCardapios(boletim?.objeto_turma.objeto_sala.objeto_escola.objetos_cardapios);
+            setMurais(boletim?.objeto_turma.objeto_sala.objeto_escola.objetos_murais);
+            setAgenda(boletim?.objeto_turma.objeto_agenda);
+            setAgendaRecados(boletim?.objeto_agenda);
+            setBoletim(boletim);
+            setLoading(false);
         }
 
         loadSala();
@@ -217,66 +340,51 @@ export default function Dashboard(){
     }
 
     async function openMinhaEscola() {
-        sala?.escola ? navigation.navigate('MinhaEscola', { id: sala?.escola }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
+        matriculado ? navigation.navigate('MinhaEscola', { minhaEscola: minhaEscola }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
     }
 
     async function openPessoal() {
-        const id = aluno?.id as number | string;
-        navigation.navigate('Pessoal', { id: id });
+        navigation.navigate('Pessoal', { aluno: aluno });
     }
 
     async function openCarteira() {
-        const id = aluno?.id as number | string;
-        sala ? navigation.navigate('Carteira', { id: id, escola: sala?.escola}) : alert('Você ainda não está matriculado em nehuma turma esse ano!');
+        matriculado ? navigation.navigate('Carteira', { aluno: aluno }) : alert('Você ainda não está matriculado em nehuma turma esse ano!');
     }
 
     async function openMerenda() {
-        sala?.escola ? navigation.navigate('Merenda', { id: sala?.escola }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
+        matriculado ? navigation.navigate('Merenda', { cardapios: cardapios }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
     }
 
     async function openMural() {
-        sala?.escola ? navigation.navigate('Mural', { id: sala?.escola }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
+        matriculado ? navigation.navigate('Mural', { murais: murais }) : alert("Você ainda não tem está matriculado em nenhuma turma esse ano!");
     }
 
     async function openFrequencia() {
-        const hasBoletim = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
-        const boletins = aluno?.objetos_boletins.filter((objeto) => (objeto.objeto_turma.ano === dataAtual.getFullYear()));
-        if (boletins && hasBoletim) {
-            const hasFrequencia =  !!boletins[boletins.length - 1].objeto_frequencia
-            hasFrequencia ? navigation.navigate('Frequencia', { id: boletins[boletins.length - 1].objeto_frequencia.id}) : alert("Você ainda não possui frequência para esse ano!");
-        } 
+        matriculado ? navigation.navigate('Frequencia', { frequencia: frequencia }) : alert('Você ainda não está matriculado em nehuma turma esse ano!');
     }
 
     async function openTransporte() {
-        const hasTransporte = aluno?.objetos_transportes.some(objeto => objeto.ano === dataAtual.getFullYear());
-        const transportes = aluno?.objetos_transportes.filter((objeto) => (objeto.ano === dataAtual.getFullYear())); 
-        transportes && hasTransporte ? navigation.navigate('Transporte', { id: transportes[0].id}) : alert("Você ainda não tem um transporte esse ano!");
+        hasTransporte ? navigation.navigate('Transporte', { transporte: transporte }) : alert("Você ainda não tem um transporte esse ano!");
     }
 
     async function openNotas() {
-        const hasBoletim = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
-        const boletins = aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
-        boletins && hasBoletim ? navigation.navigate('Notas', { id: boletins[boletins.length - 1].id}) : alert("Você ainda não tem um boletim cadastrado esse ano!");        
+        matriculado ? navigation.navigate('Notas', { boletim: boletim }) : alert("Você ainda não tem um boletim cadastrado esse ano!");        
     }
 
     async function openRecado() {
-        const hasAgenda = aluno?.objetos_agendas.some(objeto => objeto.ano === dataAtual.getFullYear());
-        const agendas = aluno?.objetos_agendas.filter(objeto => objeto.ano === dataAtual.getFullYear());
-        agendas && hasAgenda ? navigation.navigate('Recado', { id: agendas[0].id}) : alert("Você ainda não tem uma agenda de recados esse ano!");
+        matriculado ? navigation.navigate('Recado', { agendaRecados: agendaRecados }) : alert("Você ainda não tem uma agenda de recados esse ano!");
         
     }
 
     async function openAgenda() {
-        const alunoMatriculado = aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
-        const boletins = aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
-        alunoMatriculado && boletins ? navigation.navigate('Agenda', { id: boletins[boletins.length - 1].objeto_turma.objeto_agenda.id }) : alert("Aluno não está matriculado em nenhuma turma ou a turma não tem agenda cadastrada!");
+        matriculado ? navigation.navigate('Agenda', { agenda: agenda }) : alert("Aluno não está matriculado em nenhuma turma ou a turma não tem agenda cadastrada!");
     }
 
     async function openHistorico() {
         navigation.navigate('Historico', {id: 1});
     }
 
-    if(loading || loadingUser){
+    if(loading){
         return(
             <View
                 style={{
@@ -290,7 +398,7 @@ export default function Dashboard(){
             </View>
         )
     }
-
+    
     return(
         <View style={styles.container}>
             <View style={styles.header}>

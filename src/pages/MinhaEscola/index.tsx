@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons'
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
-import { api } from "../../services/api";
 
 type RouteDetailParams = {
     MinhaEscola: {
-        id: number | string;
+        minhaEscola: MinhaEscolaProps | undefined;
     }
 }
 
@@ -40,73 +39,10 @@ type MinhaEscolaProps = {
 
 type MinhaEscolaRouteProps = RouteProp<RouteDetailParams, 'MinhaEscola'>;
 
-export default function MinhaEscola(){
-    const [loading, setLoading] = useState(true);
-    
+export default function MinhaEscola(){    
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<MinhaEscolaRouteProps>();
-
-    const [minhaEscola, setMinhaEscola] = useState<MinhaEscolaProps | undefined>();
-
-    useEffect(() => {
-        const loadEscola = async () => {    
-            setLoading(true);
-            try{
-                const response = await api.get(`/escolas/api/v1/${route.params?.id}`);
-                
-                const {
-                    id,
-                    cnpj,
-                    nome,
-                    endereco,
-                    num_salas,
-                    descricao,
-                    criado_em,
-                    atualizado_em,
-                    imagem, 
-                    objetos_telefones,
-                    objetos_emails
-                } = await response.data;
-
-                setMinhaEscola({
-                    id: id,
-                    cnpj: cnpj,
-                    nome: nome,
-                    endereco: endereco,
-                    num_salas: num_salas,
-                    descricao: descricao,
-                    criado_em: criado_em,
-                    atualizado_em: atualizado_em,
-                    imagem: imagem, 
-                    objetos_telefones: objetos_telefones,
-                    objetos_emails: objetos_emails
-                });
-
-                setLoading(false);
-            }catch(err){
-                console.log(err);
-                setLoading(false);
-            }
-        };
-
-        loadEscola();
-    }, []);
-
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
-    }
 
     return(
         <View style={styles.container}>
@@ -138,23 +74,23 @@ export default function MinhaEscola(){
 
                 <View style={styles.content}>
                     <Text style={styles.topic}>CNPJ:</Text>
-                    <Text style={styles.info}>{minhaEscola?.cnpj}</Text>
+                    <Text style={styles.info}>{route.params?.minhaEscola?.cnpj}</Text>
 
                     <Text style={styles.topic}>Nome:</Text>
-                    <Text style={styles.info}>{ minhaEscola?.nome }</Text>
+                    <Text style={styles.info}>{ route.params?.minhaEscola?.nome }</Text>
                     
                     <Text style={styles.topic}>Descrição:</Text>
-                    <Text style={styles.info}>{minhaEscola?.descricao}</Text>
+                    <Text style={styles.info}>{route.params?.minhaEscola?.descricao}</Text>
                     
                     <Text style={styles.topic}>Endereço:</Text>
-                    <Text style={styles.info}>{minhaEscola?.endereco}</Text>
+                    <Text style={styles.info}>{route.params?.minhaEscola?.endereco}</Text>
                     
                     <Text style={styles.topic}>Número de Salas:</Text>
-                    <Text style={styles.info}>{minhaEscola?.num_salas} salas</Text>
+                    <Text style={styles.info}>{route.params?.minhaEscola?.num_salas} salas</Text>
                     
                     <Text style={styles.topic}>Telefone:</Text>
-                    {minhaEscola?.objetos_telefones && minhaEscola.objetos_telefones.length > 0 ? (
-                        minhaEscola.objetos_telefones.map((item) => (
+                    {route.params?.minhaEscola?.objetos_telefones && route.params?.minhaEscola?.objetos_telefones.length > 0 ? (
+                        route.params?.minhaEscola?.objetos_telefones.map((item) => (
                         <Text key={item.id} style={styles.info}>{item.numero}</Text>
                         ))
                     ) : (
@@ -162,8 +98,8 @@ export default function MinhaEscola(){
                     )}
                     
                     <Text style={styles.topic}>Email:</Text>
-                    {minhaEscola?.objetos_emails && minhaEscola.objetos_emails.length > 0 ? (
-                        minhaEscola.objetos_emails.map((item) => (
+                    {route.params?.minhaEscola?.objetos_emails && route.params?.minhaEscola?.objetos_emails.length > 0 ? (
+                        route.params?.minhaEscola?.objetos_emails.map((item) => (
                         <Text key={item.id} style={styles.info}>{item.endereco}</Text>
                         ))
                     ) : (

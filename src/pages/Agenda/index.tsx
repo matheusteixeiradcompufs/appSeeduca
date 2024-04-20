@@ -1,16 +1,16 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { StackAppParamsList } from "../../routes/app.routes";
 import { Calendar } from "react-native-calendars";
-import { api } from "../../services/api";
 import { ListItem } from "@rneui/themed";
+import { format } from "date-fns";
 
 type RouteDetailParams = {
     Agenda: {
-        id: number | string;
+        agenda: AgendaProps | undefined;
     }
 }
 
@@ -23,7 +23,7 @@ type TarefaProps = {
     id: number | string;
     nome: string;
     descricao: string;
-    tipo: boolean;
+    tipo: string;
     cadastrada_em: Date | string;
     entrega: string;
     diaAgenda: number | string;
@@ -56,47 +56,15 @@ type AgendaProps = {
 type AgendaRouteProps = RouteProp<RouteDetailParams, 'Agenda'>;
 
 export default function Agenda(){
-    const [loading, setLoading] = useState(false);
-
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
 
     const route = useRoute<AgendaRouteProps>();
-
-    const [agenda, setAgenda] = useState<AgendaProps | undefined>();
 
     const [selectedItem, setSelectedItem] = useState<DiaProps>();
 
     const [tarefaExpanded, setTarefaExpanded] = useState<boolean[]>([false]);
 
     const [avisoExpanded, setAvisoExpanded] = useState<boolean[]>([false]);
-
-    useEffect(() => {
-        const loadAgenda = async () => {    
-            setLoading(true);
-            try{
-                const response = await api.get(`/escolas/sala/turma/agenda/api/v1/${route.params?.id}`);
-                
-                const {
-                    id,
-                    turma,
-                    objetos_dias
-                } = await response.data;
-
-                setAgenda({
-                    id: id,
-                    turma: turma,
-                    objetos_dias: objetos_dias
-                });
-
-                setLoading(false);
-            }catch(err){
-                console.log(err);
-                setLoading(false);
-            }
-        };
-
-        loadAgenda();
-    }, []);
 
     const markDatesOnAgenda = (objetosDias: DiaProps[] | undefined) => {
 
@@ -111,21 +79,21 @@ export default function Agenda(){
         }
         else
             return;
-      };
+    };
 
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
+    const formatarData = (date: string) => {
+        const newDate = new Date(date);
+        newDate.setDate(newDate.getDate() + 1);
+        newDate.setHours(0);
+        return format(newDate, "dd/MM/yyyy");
+    }
+
+    const formatarTipo = (tipo: string) => {
+        switch (tipo) {
+            case 'C': return 'Casa';
+            case 'E': return 'Escola';
+            default: return '';
+        }
     }
 
     return(
@@ -157,11 +125,11 @@ export default function Agenda(){
                 <View style={styles.content}>
                     <Calendar
                         style={{ width: '100%', borderRadius: 8 }}
-                        minDate={agenda?.objetos_dias[0].data}
-                        maxDate={agenda?.objetos_dias[agenda?.objetos_dias.length - 1].data}
-                        markedDates={markDatesOnAgenda(agenda?.objetos_dias)}
+                        minDate={route.params?.agenda?.objetos_dias[0].data}
+                        maxDate={route.params?.agenda?.objetos_dias[route.params?.agenda?.objetos_dias.length - 1].data}
+                        markedDates={markDatesOnAgenda(route.params?.agenda?.objetos_dias)}
                         onDayPress={day => {
-                            const dias = agenda?.objetos_dias.filter( objeto => objeto.data === day.dateString)
+                            const dias = route.params?.agenda?.objetos_dias.filter( objeto => objeto.data === day.dateString)
                             setSelectedItem(dias && dias[0]);
                         }}
                     />
@@ -169,7 +137,7 @@ export default function Agenda(){
 
                 <View style={styles.contentAgenda}>
                     <View style={styles.titleArea}>
-                        <Text style={styles.agendaTitle}>Agenda do dia {selectedItem?.data}</Text>
+                        <Text style={styles.agendaTitle}>Agenda do dia {selectedItem && formatarData(selectedItem.data)}</Text>
                     </View>
                     
                     <View style={styles.disciplinasArea}>
@@ -216,6 +184,10 @@ export default function Agenda(){
                                     <ListItem.Content>
                                         <ListItem.Title style={styles.itemTitle}>{tarefa.nome}</ListItem.Title>
                                         <ListItem.Subtitle style={styles.itemContent}>{tarefa.descricao}</ListItem.Subtitle>
+                                        <ListItem.Title style={styles.itemTitle}>Tipo:</ListItem.Title>
+                                        <ListItem.Subtitle style={styles.itemContent}>{formatarTipo(tarefa.tipo)}</ListItem.Subtitle>
+                                        <ListItem.Title style={styles.itemTitle}>Data de Entrega:</ListItem.Title>
+                                        <ListItem.Subtitle style={styles.itemContent}>{format(new Date(tarefa.entrega), 'dd/MM/yyyy')}</ListItem.Subtitle>
                                     </ListItem.Content>
                                     
                                 </ListItem>
@@ -366,9 +338,11 @@ const styles = StyleSheet.create({
     itemTitle: {
         color: '#545353',
         fontWeight: 'bold',
+        marginBottom: 10,
     },
     itemContent: {
         color: '#545353',
+        marginBottom: 10,
     },
     accordionContainer: {
         backgroundColor: '#938e8e',

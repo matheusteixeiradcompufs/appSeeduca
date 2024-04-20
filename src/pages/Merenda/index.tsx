@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons"
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
-import { api } from "../../services/api";
-import { Avatar, Icon, ListItem } from '@rneui/themed';
+import { ListItem } from '@rneui/themed';
 
 
 type RouteDetailParams = {
     Merenda: {
-        id: number | string;
+        cardapios: CardapioProps[] | undefined;
     };
 }
 
@@ -29,69 +28,18 @@ type CardapioProps = {
     objetos_itens: ItemProps[];
 }
 
-type EscolaProps = {
-    id: number | string;
-    objetos_cardapios: CardapioProps[];
-}
-
 type MerendaRouteProps = RouteProp<RouteDetailParams, 'Merenda'>;
 
 export default function Merenda(){
-    const [loading, setLoading] = useState(true);
-    
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<MerendaRouteProps>();
-
-    const [escola, setEscola] = useState<EscolaProps>();
 
     const [expanded, setExpanded] = useState<boolean[]>([true]);
 
     const [selectedItem, setSelectedItem] = useState<ItemProps>();
 
     const [modalVisible, setModalVisible] = useState(false);
-
-    useEffect(() => {
-        const loadEscola = async () => {    
-            setLoading(true);
-
-            try{
-                const response = await api.get(`/escolas/api/v1/${route.params?.id}`);
-                
-                const {
-                    id,
-                    objetos_cardapios
-                } = await response.data;
-
-                setEscola({
-                    id: id,
-                    objetos_cardapios: objetos_cardapios
-                });
-
-                setLoading(false);
-            }catch(err){
-                console.log(err);
-                setLoading(false);
-            }
-        };
-
-        loadEscola();
-    }, []);
-
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
-    }
 
     function formatMounth(month: number){
         let exit = '';
@@ -112,11 +60,19 @@ export default function Merenda(){
         return exit;
     }
 
+    const formatTurno = (turno: string) => {
+        switch (turno) {
+            case 'M': return 'Manhã';
+            case 'T': return 'Tarde';
+            case 'N': return 'Noite';
+        }
+    }
+
     const date = new Date();
 
     const formatedDate = date.getFullYear() + '-' + formatMounth(date.getMonth()) + '-' + date.getDate();
 
-    const cardapiosDeHoje = escola?.objetos_cardapios.filter(objeto => objeto.data === formatedDate);
+    const cardapiosDeHoje = route.params?.cardapios?.filter(objeto => objeto.data === formatedDate);
 
     return(
         <View style={styles.container}>
@@ -157,7 +113,7 @@ export default function Merenda(){
                         content={
                             <>
                                 <ListItem.Content>
-                                    <ListItem.Title style={styles.turnoTitle}>{cardapio.turno}</ListItem.Title>
+                                    <ListItem.Title style={styles.turnoTitle}>{formatTurno(cardapio.turno)}</ListItem.Title>
                                 </ListItem.Content>
                             </>
                         }

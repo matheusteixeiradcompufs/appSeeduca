@@ -8,7 +8,7 @@ import { api } from "../../services/api";
 
 type RouteDetailParams = {
     Recado: {
-        id: number | string;
+        agendaRecados: AgendaRecadosProps;
     }
 }
 
@@ -17,27 +17,27 @@ type RecadoProps = {
     texto: string;
     eh_aluno: boolean;
     publicado_em: Date | string;
-    transporte: number | string;
+    pessoa: number | string;
+    agenda: number | string;
 }
 
-type AgendaProps = {
+type AgendaRecadosProps = {
     id: number | string;
-    ano: number | string;
+    boletim: number | string;
     objetos_recados: RecadoProps[];
 }
 
 type RecadoRouteProps = RouteProp<RouteDetailParams, 'Recado'>;
 
 export default function Recado(){
-
     
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
     
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<RecadoRouteProps>();
 
-    const [agenda, setAgenda] = useState<AgendaProps | undefined>();
+    // const [agenda, setAgenda] = useState<AgendaRecadosProps | undefined>();
 
     const [texto, setTexto] = useState('');
 
@@ -47,35 +47,35 @@ export default function Recado(){
 
 
     useEffect(() => {
-        const loadAgenda = async () => {    
-            setLoading(true);
-            try{
-                const response = await api.get(`/pessoas/aluno/agenda/api/v1/${route.params?.id}`);
+        // const loadAgenda = async () => {    
+        //     setLoading(true);
+        //     try{
+        //         const response = await api.get(`/pessoas/aluno/boletim/agenda/api/v1/${route.params?.id}`);
                 
-                const {
-                    id,
-                    ano,
-                    objetos_recados,
-                } = await response.data;
+        //         const {
+        //             id,
+        //             ano,
+        //             objetos_recados,
+        //         } = await response.data;
 
-                setAgenda({
-                    id: id,
-                    ano: ano,
-                    objetos_recados: objetos_recados,
-                });
+        //         setAgenda({
+        //             id: id,
+        //             ano: ano,
+        //             objetos_recados: objetos_recados,
+        //         });
 
-                setMensagens(objetos_recados); 
+        //         setMensagens(objetos_recados); 
 
-                setLoading(false);
-            }catch(err){
-                console.log(err);
-                setLoading(false);
-            }
-        };
+        //         setLoading(false);
+        //     }catch(err){
+        //         console.log(err);
+        //         setLoading(false);
+        //     }
+        // };
 
         const loadDataInterval = setInterval( async () => {
             try{
-                const response = await api.get(`/pessoas/aluno/agenda/api/v1/${route.params?.id}`);
+                const response = await api.get(`/pessoas/aluno/boletim/agenda/api/v1/${route.params?.agendaRecados?.id}`);
                 
                 const {
                     objetos_recados,
@@ -87,7 +87,7 @@ export default function Recado(){
             }
         }, 1000);
 
-        loadAgenda();
+        // loadAgenda();
       
           // Cleanup function to clear the interval when component is unmounted
         return () => clearInterval(loadDataInterval);
@@ -99,9 +99,9 @@ export default function Recado(){
 
     async function enviarMensagem(){
         try{
-            const response = await api.post(`/pessoas/aluno/agenda/recado/api/v1/`, {
+            const response = await api.post(`/pessoas/aluno/boletim/agenda/recado/api/v1/`, {
                 texto: texto,
-                agenda: route.params?.id,
+                agenda: route.params?.agendaRecados?.id,
             });
 
             setTexto('');
@@ -112,20 +112,20 @@ export default function Recado(){
         }
     }
 
-    if(loading){
-        return(
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#d9d9d9',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <ActivityIndicator size={60} color='#02489a'/>
-            </View>
-        )
-    }
+    // if(loading){
+    //     return(
+    //         <View
+    //             style={{
+    //                 flex: 1,
+    //                 backgroundColor: '#d9d9d9',
+    //                 justifyContent: 'center',
+    //                 alignItems: 'center',
+    //             }}
+    //         >
+    //             <ActivityIndicator size={60} color='#02489a'/>
+    //         </View>
+    //     )
+    // }
 
     return(
         <View style={styles.container}>
