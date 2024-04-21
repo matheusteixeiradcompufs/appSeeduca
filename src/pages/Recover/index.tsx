@@ -1,7 +1,41 @@
-import React from "react";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useState } from "react";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { StackAuthParamsList } from "../../routes/auth.routes";
 
 export default function Recover(){
+    const navigation = useNavigation<NativeStackNavigationProp<StackAuthParamsList>>();
+
+    const [email, setEmail] = useState('');
+
+    async function handleLogin() {
+        navigation.navigate('Login');
+    }
+
+    const handleRecuperar = async () => {
+      try {
+        const response = await fetch("http://192.168.0.113/pessoas/reset-password/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+  
+        if (response.ok) {
+          alert("As instruções para redefinição de senha foram enviadas para o seu e-mail.");
+          setEmail("");
+        } else {
+          const data = await response.json();
+          alert(data.message || "Ocorreu um erro ao processar a solicitação.");
+        }
+      } catch (error) {
+        console.error("Erro:", error);
+        alert("Ocorreu um erro ao processar a solicitação.");
+      }
+    };
+
     return(
         <View style={styles.container}>
             <Image
@@ -12,27 +46,17 @@ export default function Recover(){
             <View style={styles.inputContainer}>
                 <TextInput 
                     style={styles.input}
-                    placeholder="Digite seu usuario..."
+                    placeholder="Digite seu email..."
                     placeholderTextColor='#fff'
+                    value={email}
+                    onChangeText={setEmail}
                 />
 
-                <TextInput 
-                    style={styles.input}
-                    placeholder="Digite eu email..."
-                    placeholderTextColor='#fff'
-                />
-
-                <TextInput 
-                    style={styles.input}
-                    placeholder="Digite seu cpf..."
-                    placeholderTextColor='#fff'
-                />
-
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={handleRecuperar}>
                     <Text style={styles.textButton} >Recuperar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.link}>
+                <TouchableOpacity style={styles.link} onPress={handleLogin}>
                     <Text style={styles.textLink}>Se já sabe sua senha clique aqui!</Text>
                 </TouchableOpacity>
             </View>

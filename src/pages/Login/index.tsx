@@ -1,19 +1,29 @@
 import React, { useContext, useState } from "react";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../../contexts/AuthContext";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackAuthParamsList } from "../../routes/auth.routes";
 
 export default function Login(){
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
     const { login } = useContext(AuthContext);
+
+    const navigation = useNavigation<NativeStackNavigationProp<StackAuthParamsList>>();
           
     // Chame a função para iniciar a requisição
     async function handleLogin(){
+        console.log("Testando!");
         if(username === '' || password === ''){
             return;
         }
         await login({ username, password });
+    }
+
+    async function handleRecover() {
+        navigation.navigate('Recover');
     }
 
     return(
@@ -41,7 +51,7 @@ export default function Login(){
                 <TouchableOpacity style={styles.button} onPress={handleLogin}>
                     <Text style={styles.textButton} >Acessar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.link}>
+                <TouchableOpacity style={styles.link} onPress={handleRecover}>
                     <Text style={styles.textLink}>Esqueceu a senha clique aqui!</Text>
                 </TouchableOpacity>
             </View>

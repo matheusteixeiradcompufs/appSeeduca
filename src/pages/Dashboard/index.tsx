@@ -5,7 +5,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
-import { api } from "../../services/api";
+import { api } from "../../services/api"; 
 
 type DisciplinaProps = {
     id: number | string;
@@ -241,7 +241,6 @@ export default function Dashboard(){
     const [loading, setLoading] = useState(true);
 
     const [aluno, setAluno] = useState<AlunoProps>();
-    const [sala, setSala] = useState<SalaProps>();
     const [matriculado, setMatriculado] = useState<boolean | undefined>(false);
     const [minhaEscola, setMinhaEscola] = useState<MinhaEscolaProps>();
     const [frequencia, setFrequencia] = useState<FrequenciaProps>();
@@ -269,13 +268,13 @@ export default function Dashboard(){
 
             }catch(err: any){
                 console.log('Mensagem de erro loadUser: ', err)
-                // try{
-                //     await refreshToken();
-                //     await loadUser();
-                // }catch(error){
-                //     console.log('Mensagem de erro refreshToken: ', error)
-                //     logout();
-                // }
+                try{
+                    await refreshToken();
+                    await loadUser();
+                }catch(error){
+                    console.log('Mensagem de erro refreshToken: ', error)
+                    logout();
+                }
                 setLoading(false);
             }
         };

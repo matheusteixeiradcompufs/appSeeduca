@@ -1,7 +1,9 @@
 import React, { ReactNode, createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios, { AxiosError } from "axios";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackAuthParamsList } from "../routes/auth.routes";
 
 type AuthContextData = {
     user: UserProps;
@@ -29,11 +31,10 @@ type LoginProps = {
     password: string;
 }
 
-// const API_BASE_URL = 'http://192.168.0.113/api';
-
 export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({children}: AuthProviderProps){
+    const navigation = useNavigation<NativeStackNavigationProp<StackAuthParamsList>>();
     const [user, setUser] = useState<UserProps>({
         username: '',
         first_name: '',
@@ -104,7 +105,7 @@ export function AuthProvider({children}: AuthProviderProps){
     async function refreshToken(){
         setLoading(true);
         try {
-            const response = await api.post('/token/refresh/', {
+            const response = await api.post('/api/token/refresh/', {
                 refresh: user.refresh,
             });
     
@@ -154,6 +155,8 @@ export function AuthProvider({children}: AuthProviderProps){
             await AsyncStorage.removeItem('@appseeduca:refreshToken');
             
             setLoadingAuth(false);
+
+            navigation.navigate('Login');
         } catch (error) {
             console.error('Erro ao fazer logout:', error);
             

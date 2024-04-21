@@ -36,7 +36,13 @@ function AuthRoutes(){
                     
                 }}
             />
-            <Stack.Screen name='Recover' component={Recover}/>
+            <Stack.Screen
+                name='Recover'
+                component={Recover}
+                options={{
+                    headerShown: false
+                }}
+            />
         </Stack.Navigator>
     )
 }

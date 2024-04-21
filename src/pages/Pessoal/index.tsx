@@ -223,68 +223,7 @@ export default function Pessoal(){
     
     const route = useRoute<AlunoRouteProps>();
 
-    // const [aluno, setAluno] = useState<AlunoProps | undefined>();
-
     const dataAtual = new Date();
-
-    // // useEffect(() => {
-    // //     const loadAluno = async () => {    
-    // //         setLoading(true);
-    // //         try{
-    // //             const response = await api.get(`/pessoas/aluno/api/v1/${route.params?.id}`);
-                
-    // //             const {
-    // //                 id,
-    // //                 matricula,
-    // //                 cpf,
-    // //                 data_nascimento,
-    // //                 endereco,
-    // //                 eh_pcd,
-    // //                 retrato,
-    // //                 objeto_usuario, 
-    // //                 objetos_emails,
-    // //                 objetos_telefones,
-    // //                 objetos_boletins,
-    // //             } = await response.data;
-
-    // //             setAluno({
-    // //                 id: id,
-    // //                 matricula: matricula,
-    // //                 cpf: cpf,
-    // //                 data_nascimento: data_nascimento,
-    // //                 endereco: endereco,
-    // //                 eh_pcd: eh_pcd,
-    // //                 retrato: retrato,
-    // //                 objeto_usuario: objeto_usuario,
-    // //                 objetos_emails: objetos_emails,
-    // //                 objetos_telefones: objetos_telefones,
-    // //                 objetos_boletins: objetos_boletins,
-    // //             });
-
-    // //             setLoading(false);
-    // //         }catch(err){
-    // //             console.log(err);
-    // //             setLoading(false);
-    // //         }
-    // //     };
-
-    // //     loadAluno();
-    // // }, []);
-
-    // // if(loading){
-    // //     return(
-    // //         <View
-    // //             style={{
-    // //                 flex: 1,
-    // //                 backgroundColor: '#d9d9d9',
-    // //                 justifyContent: 'center',
-    // //                 alignItems: 'center',
-    // //             }}
-    // //         >
-    // //             <ActivityIndicator size={60} color='#02489a'/>
-    // //         </View>
-    // //     )
-    // }
 
     const alunoMatriculado = route.params?.aluno?.objetos_boletins.some(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
     const boletins = route.params?.aluno?.objetos_boletins.filter(objeto => objeto.objeto_turma.ano === dataAtual.getFullYear());
@@ -321,7 +260,7 @@ export default function Pessoal(){
                     <View style={styles.lineImage}>
                         <Image
                             style={styles.photo}
-                            source={ route.params?.aluno?.retrato ?  { uri: route.params?.aluno?.retrato } : require('../../assets/Foto.png')} 
+                            source={ route.params?.aluno?.retrato ?  { uri: `http://192.168.0.113${route.params?.aluno?.retrato}` } : require('../../assets/Foto.png')} 
                         />
                         <View style={styles.column}>
                             <Text style={styles.topicColumn}>Matricula:</Text>

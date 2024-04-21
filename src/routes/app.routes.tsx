@@ -361,7 +361,7 @@ function AppRoutes(){
             />
             <Stack.Screen 
                 name='Historico' 
-                component={Historico}  
+                component={Historico}
                 options={{
                     headerShown: false
                 }}
