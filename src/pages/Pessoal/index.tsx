@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons';
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackAppParamsList } from "../../routes/app.routes";
-import { api } from "../../services/api";
+import { BASE_URL } from "../../services/api";
 import { format } from "date-fns"
+import { AlunoProps } from "../../types";
+import { styles } from "./styles";
 
 type RouteDetailParams = {
     Pessoal: {
@@ -13,212 +15,9 @@ type RouteDetailParams = {
     }
 }
 
-type DisciplinaProps = {
-    id: number | string;
-    nome: string;
-}
-
-type TelefoneProps = {
-    id: number | string;
-    numero: string;
-    escola: number | string;
-}
-
-type EmailProps = {
-    id: number | string;
-    endereco: string;
-    escola: number | string;
-}
-
-type MinhaEscolaProps = {
-    id: number | string;
-    cnpj: string;
-    nome: string;
-    endereco: string;
-    num_salas: number | string;
-    descricao: string;
-    criado_em: Date | string;
-    atualizado_em: Date | string;
-    imagem: string; 
-    objetos_telefones: TelefoneProps[];
-    objetos_emails: EmailProps[];
-}
-
-type SalaProps = {
-    id: number | string;
-    numero: number;
-    quantidade_alunos: number;
-    escola: number | string;
-    objeto_escola: MinhaEscolaProps;
-}
-
-type AvaliacaoProps = {
-    id: number | string;
-    nome: string;
-    nota: number;
-    confirmar: boolean;
-    aluno: number | string;
-    disciplina: number | string;
-    boletim: number | string;
-    objeto_disciplina: DisciplinaProps;
-}
-
-type TransporteProps = {
-    id: number | string;
-    placa: string;
-    ano: number;
-    tipo: string;
-    nomeMotorista: string;
-    nomeAuxiliar: string;
-    itinerario: string;
-    alunos: number[] | string[];
-    objetos_telefones: TelefoneProps[];
-}
-
-type TarefaProps = {
-    id: number | string;
-    nome: string;
-    descricao: string;
-    tipo: boolean;
-    cadastrada_em: Date | string;
-    entrega: string;
-    diaAgenda: number | string;
-}
-
-type AvisoProps = {
-    id: number | string;
-    titulo: string;
-    texto: string;
-    publicado_em: Date | string;
-    diaAgenda: number | string;
-}
-
-type DiaProps = {
-    id: number | string;
-    data: Date | string;
-    util: boolean;
-    disciplinas: number[] | string[];
-    agenda: number | string;
-    objetos_disciplinas: DisciplinaProps[];
-    objetos_avisos: AvisoProps[];
-    objetos_tarefas: TarefaProps[];
-}
-
-type AgendaProps = {
-    id: number | string;
-    turma: number | string;
-    objetos_dias: DiaProps[];
-}
-
-type TurmaProps = {
-    id: number | string;
-    nome: string;
-    ano: number;
-    turno: string;
-    sala: number | string;
-    disciplinas: number[];
-    objeto_agenda: AgendaProps;
-    objetos_disciplinas: DisciplinaProps[];
-    objeto_sala: SalaProps;
-}
-
-type RecadoProps = {
-    id: number | string;
-    texto: string;
-    eh_aluno: boolean;
-    publicado_em: Date | string;
-    transporte: number | string;
-}
-
-type AgendaRecadosProps = {
-    id: number | string;
-    ano: number | string;
-    objetos_recados: RecadoProps[];
-}
-
-type DiaLetivoProps = {
-    id: number | string;
-    data: Date | string;
-    presenca: boolean;
-    frequencia: number | string;
-}
-
-type FrequenciaProps = {
-    id: number | string;
-    percentual: number;
-    boletim: number | string;
-    objetos_diasletivos: DiaLetivoProps[];
-}
-
-type MediaProps = {
-    id: number | string;
-    tipo: string;
-    valor: number;
-    disciplina: number | string;
-    boletim: number | string;
-    objeto_disciplina: DisciplinaProps;
-}
-
-type SituacaoProps = {
-    id: number | string;
-    situacao: string;
-    finalizar: boolean;
-    disciplina: number | string;
-    boletim: number | string;
-    objeto_disciplina: DisciplinaProps;
-}
-
-type BoletimProps = {
-    id: number | string;
-    aluno: number | string;
-    status: string;
-    encerrar: boolean;
-    turma: number | string;
-    objeto_turma: TurmaProps;
-    objeto_frequencia: FrequenciaProps;
-    objetos_avaliacoes: AvaliacaoProps[];
-    objetos_medias: MediaProps[];
-    objetos_situacoes: SituacaoProps[];
-    objeto_agenda: AgendaRecadosProps;
-}
-
-type UserProps = {
-    id: number | string;
-    username: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-}
-
-type ResponsavelProps = {
-    id: number | string;
-    cpf: string;
-    nome: string;
-    observacao: string;
-    aluno: number | string;
-}
-
-type AlunoProps = {
-    id: number | string;
-    matricula: string;
-    cpf: string;
-    data_nascimento: string;
-    endereco: string;
-    eh_pcd: boolean;
-    retrato: string;
-    objeto_usuario: UserProps;
-    objetos_telefones: TelefoneProps[];
-    objetos_emails: EmailProps[];
-    objetos_responsaveis: ResponsavelProps[];
-    objetos_boletins: BoletimProps[];
-    objetos_transportes: TransporteProps[];
-}
-
 type AlunoRouteProps = RouteProp<RouteDetailParams, 'Pessoal'>;
 
 export default function Pessoal(){
-    // const [loading, setLoading] = useState(true);
-    
     const navigation = useNavigation<NativeStackNavigationProp<StackAppParamsList>>();
     
     const route = useRoute<AlunoRouteProps>();
@@ -260,7 +59,7 @@ export default function Pessoal(){
                     <View style={styles.lineImage}>
                         <Image
                             style={styles.photo}
-                            source={ route.params?.aluno?.retrato ?  { uri: `http://192.168.0.113${route.params?.aluno?.retrato}` } : require('../../assets/Foto.png')} 
+                            source={ route.params?.aluno?.retrato ?  { uri: `${BASE_URL}${route.params?.aluno?.retrato}` } : require('../../assets/Foto.png')} 
                         />
                         <View style={styles.column}>
                             <Text style={styles.topicColumn}>Matricula:</Text>
@@ -305,110 +104,4 @@ export default function Pessoal(){
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#d9d9d9',
-        paddingHorizontal: 10,
-    },
-    header: {
-        width: '100%',
-        height: 73,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#d9d9d9',
-        paddingHorizontal: 37,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    logoLeft: {
-        width: 63,
-        height: 52.87,
-        borderRadius: 8,
-    },
-    logo: {
-        width: 53,
-        height: 53,
-        borderRadius: 8,
-        marginLeft: 69,
-        marginRight: 69,
-    },
-    logoRigth: {
-        width: 77,
-        height: 29,
-        borderRadius: 8,
-    },
-    banner: {
-        width: '100%',
-        height: 62,
-        backgroundColor: '#02489a',
-        borderRadius: 8,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 17,
-        marginBottom: 30,
-    },
-    text: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: '#d9d9d9',
-        marginLeft: 16,
-        marginRight: 126,
-    },
-    content: {
-        width: '100%',
-        backgroundColor: '#02489a',
-        borderRadius: 8,
-        paddingHorizontal: 13,
-        paddingVertical: 30,
-    },
-    lineImage: {
-        width: '100%',
-        backgroundColor: '#02489a',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 14,
-    },
-    photo:{
-        width: 120,
-        height: 160,
-        borderRadius: 8,
-    },
-    column: {
-        width: 'auto',
-        backgroundColor: '#02489a',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 85,
-    },
-    topicColumn: {
-        color: '#d9d9d9',
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 14,
-    },
-    infoColumn: {
-        color: '#d9d9d9',
-        fontSize: 20,
-    },
-    topic: {
-        color: '#d9d9d9',
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 14,
-    },
-    info: {
-        color: '#d9d9d9',
-        fontSize: 20,
-    },
-});
     

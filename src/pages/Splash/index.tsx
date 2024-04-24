@@ -1,5 +1,6 @@
 import React from "react";
 import { Image, StyleSheet, View } from "react-native";
+import { styles } from "./styles";
 
 export default function Splash(){
     return(
@@ -11,17 +12,3 @@ export default function Splash(){
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#d9d9d9'
-    },
-    logo: {
-        width: 221,
-        height: 221,
-        borderRadius: 8,
-    }
-})

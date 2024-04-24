@@ -1,0 +1,138 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#d9d9d9',
+        paddingHorizontal: 10,
+    },
+    header: {
+        width: '100%',
+        height: 73,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#d9d9d9',
+        paddingHorizontal: 37,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    logoLeft: {
+        width: 63,
+        height: 52.87,
+        borderRadius: 8,
+    },
+    logo: {
+        width: 53,
+        height: 53,
+        borderRadius: 8,
+        marginLeft: 69,
+        marginRight: 69,
+    },
+    logoRigth: {
+        width: 77,
+        height: 29,
+        borderRadius: 8,
+    },
+    banner: {
+        width: '100%',
+        height: 62,
+        backgroundColor: '#02489a',
+        borderRadius: 8,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 17,
+        marginBottom: 30,
+    },
+    text: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#d9d9d9',
+        marginLeft: 16,
+        marginRight: 15,
+    },
+    content: {
+        backgroundColor: '#02489a',
+        borderRadius: 8,
+        width: '100%',
+        padding: 16,
+        marginBottom: 10,
+    },
+    contentAgenda: {
+        backgroundColor: '#02489a',
+        borderRadius: 8,
+        width: '100%',
+        marginBottom: 10,
+    },
+    label: {
+        width: '100%', 
+        height: 50, 
+        backgroundColor: '#02489a', 
+        paddingHorizontal: 16, 
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    labelText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#d9d9d9',
+    },
+    labelBottom: {
+        borderTopWidth: 0.6,
+        borderColor: '#d9d9d9',
+        width: '100%', 
+        height: 50, 
+        backgroundColor: '#02489a', 
+        borderBottomLeftRadius: 8,
+        borderBottomRightRadius: 8, 
+    },
+    turnoTitle: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    itemTitle: {
+        color: '#545353',
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    itemContent: {
+        color: '#545353',
+        marginBottom: 10,
+    },
+    accordionContainer: {
+        backgroundColor: '#938e8e',
+    },
+    titleArea: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderBottomWidth: 2,
+        borderColor: '#d9d9d9',
+        padding: 10,
+    },
+    agendaTitle: {
+        fontSize: 24,
+        fontWeight: "bold",
+        color: '#d9d9d9',
+    },
+    disciplinasArea: {
+        width: '100%',
+        alignItems: 'center',
+        marginTop: 10,
+        borderBottomWidth: 1,
+        borderColor: '#d9d9d9',
+        padding: 10,
+    },
+    disciplinas: {
+        fontWeight: 'bold',
+        fontSize: 20,
+        color: '#02489e',
+    }
+});
